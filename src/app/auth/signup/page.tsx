@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { AuthShell } from '@/app/auth/auth-shell'
+import { createClient } from '@/lib/supabase/client'
+
+const inputClassName = 'w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3.5 py-2.5 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20'
 
 export default function SignupPage() {
     const [email, setEmail] = useState('')
@@ -11,110 +13,154 @@ export default function SignupPage() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [success, setSuccess] = useState(false)
-    const router = useRouter()
+    const [resending, setResending] = useState(false)
+    const [resendMessage, setResendMessage] = useState('')
     const supabase = createClient()
 
-    async function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setError('')
-        setLoading(true)
 
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-        })
-
-        if (error) {
-            setError(error.message)
-            setLoading(false)
+        const formData = new FormData(e.currentTarget)
+        const normalizedEmail = String(formData.get('email') ?? '').trim()
+        const submittedPassword = String(formData.get('password') ?? '')
+        if (!normalizedEmail) {
+            setError('Enter a valid email address.')
             return
         }
 
-        // If email confirmation is ON (default), the user isn't logged in yet
-        setSuccess(true)
-        setLoading(false)
+        setEmail(normalizedEmail)
+        setLoading(true)
+
+        try {
+            const { error } = await supabase.auth.signUp({
+                email: normalizedEmail,
+                password: submittedPassword,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                },
+            })
+
+            if (error) {
+                setError(error.message)
+                return
+            }
+
+            setSuccess(true)
+        } catch {
+            setError('Could not reach the signup service. Check your connection and try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function resendConfirmation() {
+        setResending(true)
+        setResendMessage('')
+
+        try {
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                },
+            })
+
+            setResendMessage(error ? error.message : 'A new confirmation link has been sent.')
+        } catch {
+            setResendMessage('Could not reach the signup service. Check your connection and try again.')
+        } finally {
+            setResending(false)
+        }
     }
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 text-center">
-                    <h1 className="text-2xl font-bold mb-4">Check your email 📬</h1>
-                    <p className="text-gray-600 mb-6">
-                        We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
+            <AuthShell
+                title="Check your email"
+                description={<>We sent a confirmation link to <strong className="font-medium text-zinc-200">{email}</strong>.</>}
+                footer={
+                    <p className="text-center text-sm text-zinc-400">
+                        Already confirmed?{' '}
+                        <Link href="/auth/login" className="font-medium text-violet-300 hover:text-violet-200">Sign in</Link>
                     </p>
-                    <Link
-                        href="/auth/login"
-                        className="text-blue-600 hover:underline text-sm"
+                }
+            >
+                <div className="text-center">
+                    <p className="text-sm leading-6 text-zinc-400">The link is single-use. If it expires, request another one.</p>
+                    <button
+                        type="button"
+                        onClick={resendConfirmation}
+                        disabled={resending}
+                        className="mt-3 rounded-lg px-3 py-2 text-sm font-medium text-violet-300 transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 disabled:cursor-wait disabled:opacity-60"
                     >
-                        Back to login
-                    </Link>
+                        {resending ? 'Sending…' : 'Resend confirmation email'}
+                    </button>
+                    {resendMessage && <p role="status" className="mt-3 text-sm text-zinc-400">{resendMessage}</p>}
                 </div>
-            </div>
+            </AuthShell>
         )
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="w-full max-w-md">
-                <div className="bg-white rounded-lg shadow-md p-8">
-                    <h1 className="text-2xl font-bold text-center mb-6">Create account</h1>
-
-                    {error && (
-                        <div className="mb-4 p-3 rounded bg-red-50 text-red-700 text-sm">
-                            {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="you@example.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength={8}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="At least 8 characters"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition"
-                        >
-                            {loading ? 'Creating account…' : 'Sign up'}
-                        </button>
-                    </form>
-
-                    <p className="mt-4 text-center text-sm text-gray-600">
-                        Already have an account?{' '}
-                        <Link href="/auth/login" className="text-blue-600 hover:underline">
-                            Sign in
-                        </Link>
-                    </p>
+        <AuthShell
+            title="Sign up"
+            description="Create an account with your email."
+            footer={
+                <p className="text-center text-sm text-zinc-400">
+                    Already have an account?{' '}
+                    <Link href="/auth/login" className="font-medium text-violet-300 hover:text-violet-200">Sign in</Link>
+                </p>
+            }
+        >
+            {error && (
+                <div role="alert" className="mb-4 rounded-lg border border-red-400/20 bg-red-400/10 px-3.5 py-2.5 text-sm leading-5 text-red-300">
+                    {error}
                 </div>
-            </div>
-        </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-zinc-300">Email</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                        placeholder="you@example.com"
+                        className={inputClassName}
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-zinc-300">Password</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        placeholder="At least 8 characters"
+                        className={inputClassName}
+                    />
+                    <p className="mt-1.5 text-xs text-zinc-500">At least 8 characters.</p>
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 disabled:cursor-wait disabled:opacity-60"
+                >
+                    {loading ? 'Creating account…' : 'Create account'}
+                </button>
+            </form>
+        </AuthShell>
     )
-}   
+}

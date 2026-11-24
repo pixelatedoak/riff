@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
+:root {
+    color-scheme: dark;
+    background: #0b0b10;
+    color: #f4f4f5;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background: white;
-    color: black;
-    height: 100%;
-    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    background:
+        radial-gradient(80rem 36rem at 50% -12rem, rgb(91 74 163 / 14%), transparent 68%),
+        #0b0b10;
+    background-attachment: fixed;
 }
 
-.container {
-    padding: 10px 50px;
-}
-
-.title {
-    font-size: 50px;
-    font-weight: bold;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.description {
-    font-weight: 500;
-    font-family: 'Courier New', Courier, monospace;
+::selection {
+    background: #5b4aa3;
+    color: #fff;
 }
