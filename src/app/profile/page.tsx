@@ -47,7 +47,7 @@ export default async function ProfilePage() {
         : { data: [] }
 
     return (
-        <main className="min-h-screen bg-transparent pb-24 text-zinc-100">
+        <main className="min-h-dvh bg-transparent pb-24 text-zinc-100">
             <ProfileEditor initialProfile={profile} loadError={error?.message ?? null} initialPosts={posts} authors={authors} initialAttachments={attachments ?? []} isModerator={Boolean(moderator)} />
             <BottomNavigation active="profile" />
         </main>

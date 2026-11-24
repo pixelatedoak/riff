@@ -3,6 +3,7 @@ import { BottomNavigation } from '@/app/bottom-navigation'
 import { RiffTree } from '@/app/riffs/riff-tree'
 import { createClient } from '@/lib/supabase/server'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
+import { PwaInstallPrompt } from '@/app/pwa-install-prompt'
 import Link from 'next/link'
 
 function BranchArtwork() {
@@ -83,14 +84,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
     const riffError = rootError ?? branchError ?? authorError ?? attachmentError ?? (followingError ? { message: followingError } : null)
 
     return (
-        <main className="min-h-screen bg-transparent pb-32 text-zinc-100">
-            <section aria-labelledby="feed-title" className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-12">
-                <div className="mb-6 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
+        <main className="min-h-dvh bg-transparent pb-[calc(5.5rem+env(safe-area-inset-bottom))] text-zinc-100">
+            <section aria-labelledby="feed-title" className="mx-auto max-w-5xl px-4 pt-5 sm:px-6 sm:pt-12">
+                <div className="mb-4 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500 sm:mb-6 sm:text-xs">
                     <span className="size-1.5 rounded-full bg-violet-300 shadow-[0_0_12px_rgba(196,181,253,0.85)]" />
                     Riff / Feed
                 </div>
 
-                <div className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/[0.09] bg-[#121117] px-6 py-9 shadow-[0_28px_100px_rgba(0,0,0,0.3)] sm:px-10 sm:py-12">
+                <div className="relative isolate overflow-hidden rounded-[1.5rem] border border-white/[0.09] bg-[#121117] px-5 py-6 shadow-[0_20px_60px_rgba(0,0,0,0.24)] sm:rounded-[1.75rem] sm:px-10 sm:py-12 sm:shadow-[0_28px_100px_rgba(0,0,0,0.3)]">
                     <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_15%_20%,rgba(139,92,246,0.2),transparent_44%),radial-gradient(ellipse_at_80%_100%,rgba(34,211,238,0.09),transparent_42%)]" />
                     <div aria-hidden="true" className="absolute -right-16 -top-24 -z-10 size-72 rounded-full border border-white/[0.04] sm:size-96" />
                     <div aria-hidden="true" className="absolute -right-2 -top-10 -z-10 size-56 rounded-full border border-white/[0.04] sm:right-12 sm:top-0 sm:size-72" />
@@ -101,20 +102,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
                             <span className="size-1.5 rounded-full bg-violet-300" />
                             A feed for unfinished thoughts
                         </span>
-                        <h1 id="feed-title" className="mt-6 text-4xl font-semibold leading-[1.08] tracking-[-0.04em] text-white sm:text-6xl">
+                        <h1 id="feed-title" className="mt-4 text-[2.45rem] font-semibold leading-[1.02] tracking-[-0.045em] text-white sm:mt-6 sm:text-6xl sm:leading-[1.08]">
                             One thought can<br className="hidden sm:block" /> take its own <span className="bg-gradient-to-r from-violet-200 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">direction.</span>
                         </h1>
-                        <p className="mt-5 max-w-md text-sm leading-6 text-zinc-400 sm:text-base sm:leading-7">
+                        <p className="mt-3 max-w-md text-[13px] leading-5 text-zinc-400 sm:mt-5 sm:text-base sm:leading-7">
                             Riffs grow through branches. Your feed will gather the ideas and responses that find their way here.
                         </p>
-                        <Link href="/create" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-violet-300 px-4 py-2.5 text-sm font-semibold text-[#17121f] shadow-[0_8px_28px_rgba(167,139,250,0.18)] transition hover:bg-violet-200">
+                        <Link href="/create" className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-violet-300 px-4 py-3 text-sm font-semibold text-[#17121f] shadow-[0_8px_28px_rgba(167,139,250,0.18)] transition hover:bg-violet-200 sm:mt-7 sm:w-auto sm:py-2.5">
                             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" /></svg>
                             Start a Riff
                         </Link>
                     </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-between gap-4">
+                <PwaInstallPrompt />
+
+                <div className="mt-7 flex items-end justify-between gap-4 sm:mt-8">
                     <div>
                         <h2 className="text-lg font-medium tracking-tight text-white">Your feed</h2>
                         <p className="mt-1 text-sm text-zinc-500">{feedMode === 'following' ? 'New thoughts from people you follow.' : 'The latest public thoughts from the community.'}</p>
@@ -122,9 +125,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
                     <span className="rounded-full border border-white/[0.08] bg-white/[0.025] px-3 py-1.5 text-xs text-zinc-500">{rootCount} {rootCount === 1 ? 'post' : 'posts'}</span>
                 </div>
 
-                <nav aria-label="Feed filter" className="mt-4 flex gap-2">
-                    <Link href="/" aria-current={feedMode === 'latest' ? 'page' : undefined} className={`rounded-full px-3 py-1.5 text-xs ${feedMode === 'latest' ? 'bg-violet-300/10 text-violet-200' : 'text-zinc-500 hover:text-zinc-200'}`}>Latest</Link>
-                    <Link href="/?feed=following" aria-current={feedMode === 'following' ? 'page' : undefined} className={`rounded-full px-3 py-1.5 text-xs ${feedMode === 'following' ? 'bg-violet-300/10 text-violet-200' : 'text-zinc-500 hover:text-zinc-200'}`}>Following</Link>
+                <nav aria-label="Feed filter" className="mt-4 flex w-fit gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-1">
+                    <Link href="/" aria-current={feedMode === 'latest' ? 'page' : undefined} className={`min-h-9 rounded-lg px-4 py-2 text-xs font-medium ${feedMode === 'latest' ? 'bg-white/[0.08] text-zinc-100' : 'text-zinc-500 hover:text-zinc-200'}`}>Latest</Link>
+                    <Link href="/?feed=following" aria-current={feedMode === 'following' ? 'page' : undefined} className={`min-h-9 rounded-lg px-4 py-2 text-xs font-medium ${feedMode === 'following' ? 'bg-white/[0.08] text-zinc-100' : 'text-zinc-500 hover:text-zinc-200'}`}>Following</Link>
                 </nav>
 
                 {riffError ? (

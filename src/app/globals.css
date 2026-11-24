@@ -15,6 +15,13 @@
     box-sizing: border-box;
 }
 
+html {
+    min-height: 100%;
+    background: #0b0b10;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
 body {
     min-height: 100vh;
     margin: 0;
@@ -22,6 +29,41 @@ body {
         radial-gradient(80rem 36rem at 50% -12rem, rgb(91 74 163 / 14%), transparent 68%),
         #0b0b10;
     background-attachment: fixed;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+    touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+    font-size: inherit;
+}
+
+@media (max-width: 639px) {
+    input:not([type='checkbox']):not([type='radio']),
+    textarea,
+    select {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 ::selection {

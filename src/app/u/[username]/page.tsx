@@ -82,7 +82,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     const sections = ['Posts', 'Riffs', 'Black Riffs', 'Reposts']
 
     return (
-        <main className="min-h-screen bg-transparent pb-24 text-zinc-100">
+        <main className="min-h-dvh bg-transparent pb-24 text-zinc-100">
             <div className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 sm:pt-12">
                 <div className="mb-5 flex items-center justify-between">
                     <Link href="/" className="text-lg font-semibold tracking-tight text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-400">

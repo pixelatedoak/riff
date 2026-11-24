@@ -60,7 +60,7 @@ export default async function RiffThreadPage({ params, searchParams }: { params:
     const hasOlder = offset + (branchData?.length ?? 0) < (totalBranchCount ?? 0)
 
     return (
-        <main className="min-h-screen bg-transparent pb-28 text-zinc-100">
+        <main className="min-h-dvh bg-transparent pb-28 text-zinc-100">
             <section className="mx-auto max-w-3xl px-4 pt-8 sm:px-6 sm:pt-12">
                 <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-200">
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" /></svg>

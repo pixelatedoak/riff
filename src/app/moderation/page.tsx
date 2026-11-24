@@ -41,7 +41,7 @@ export default async function ModerationPage() {
         preview: previews.get(report.target_id) ?? '[content no longer available]',
     }))
 
-    return <main className="min-h-screen bg-transparent pb-28 text-zinc-100">
+    return <main className="min-h-dvh bg-transparent pb-28 text-zinc-100">
         <section className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 sm:pt-12">
             <Link href="/profile" className="text-sm text-zinc-500 hover:text-zinc-200">← Profile</Link>
             <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-rose-200/80">Riff safety</p>
