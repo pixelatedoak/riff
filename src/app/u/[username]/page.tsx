@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { BottomNavigation } from '@/app/bottom-navigation'
 import { ProfileSections } from '@/app/profile/profile-sections'
 import { FollowProfileButton } from '@/app/profile/follow-profile-button'
+import { FollowCounts } from '@/app/profile/follow-counts'
+import { MessageProfileButton } from '@/app/messages/message-profile-button'
 import { createClient } from '@/lib/supabase/server'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
 import { Icon } from '@/components/icon'
@@ -45,8 +47,9 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     const profile = profileData as PublicProfile | null
     if (!profile) notFound()
 
-    const [{ count: followerCount }, { data: postData }] = await Promise.all([
+    const [{ count: followerCount }, { count: followingCount }, { data: postData }] = await Promise.all([
         supabase.from('riff_follows').select('follower_id', { count: 'exact', head: true }).eq('followed_id', profile.id),
+        supabase.from('riff_follows').select('followed_id', { count: 'exact', head: true }).eq('follower_id', profile.id),
         supabase.from('riffs')
             .select('id, author_id, parent_riff_id, root_riff_id, kind, content, created_at, comments_enabled, allow_branches, deleted_at')
             .eq('author_id', profile.id)
@@ -91,7 +94,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                     </Link>
                     {user?.id === profile.id
                         ? <Link href="/profile" className="rounded-lg border border-white/10 px-3 py-2 text-sm text-zinc-300 hover:bg-white/5">Edit profile</Link>
-                        : <FollowProfileButton profileId={profile.id} initialCount={followerCount ?? 0} />}
+                        : <div className="flex items-start gap-2"><MessageProfileButton currentUserId={user?.id ?? null} profileId={profile.id} />{user && <FollowProfileButton profileId={profile.id} />}</div>}
                 </div>
 
                 <section aria-label={`${name}'s profile`} className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface shadow-[0_24px_90px_rgba(0,0,0,0.2)]">
@@ -114,6 +117,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                         </div>
                         <h1 className="riff-page-heading mt-5 text-3xl">{name}</h1>
                         <p className="mt-1 text-sm text-zinc-500">@{profile.username}</p>
+                        <FollowCounts profileId={profile.id} username={profile.username} followers={followerCount ?? 0} following={followingCount ?? 0} />
                         {profile.pronouns && <p className="mt-4 text-sm text-zinc-400">{profile.pronouns}</p>}
                         {profile.description && <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-6 text-zinc-300">{profile.description}</p>}
                         {links.length > 0 && (

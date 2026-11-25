@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { BottomNavigation } from '@/app/bottom-navigation'
-import { ReportInbox } from '@/app/moderation/report-inbox'
+import { ModerationDashboard, type ModeratorUser } from '@/app/moderation/dashboard'
 import { createClient } from '@/lib/supabase/server'
 
 export type ReportItem = {
@@ -24,9 +24,14 @@ export default async function ModerationPage() {
     const { data: moderator } = await supabase.from('riff_moderators').select('email').eq('email', user.email.toLowerCase()).maybeSingle()
     if (!moderator) notFound()
 
-    const { data: reports, error } = await supabase.from('riff_reports')
-        .select('id, reporter_id, target_type, target_id, reason, status, created_at')
-        .order('created_at', { ascending: false }).limit(200)
+    const [{ data: reports, error }, { data: userRows, count: userCount, error: userError }] = await Promise.all([
+        supabase.from('riff_reports')
+            .select('id, reporter_id, target_type, target_id, reason, status, created_at')
+            .order('created_at', { ascending: false }).limit(200),
+        supabase.from('profiles')
+            .select('id, username, full_name, avatar_url', { count: 'exact' })
+            .order('username', { ascending: true, nullsFirst: false }).range(0, 39),
+    ])
     const riffIds = [...new Set((reports ?? []).filter((report) => report.target_type === 'riff').map((report) => report.target_id))]
     const commentIds = [...new Set((reports ?? []).filter((report) => report.target_type === 'comment').map((report) => report.target_id))]
     const [{ data: riffRows }, { data: commentRows }] = await Promise.all([
@@ -47,7 +52,7 @@ export default async function ModerationPage() {
             <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-rose-200/80">Riff safety</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Moderation inbox</h1>
             <p className="mt-2 text-sm text-zinc-500">Review reports, remove content, or close a report.</p>
-            {error ? <p role="alert" className="mt-5 rounded-xl border border-rose-300/15 bg-rose-300/[0.05] p-4 text-sm text-rose-100">Could not load reports: {error.message}</p> : <ReportInbox initialReports={items} />}
+            <ModerationDashboard reports={items} users={(userRows ?? []) as ModeratorUser[]} userCount={userCount ?? 0} reportError={error?.message ?? null} userError={userError?.message ?? null} />
         </section>
         <BottomNavigation active="none" />
     </main>

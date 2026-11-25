@@ -28,7 +28,7 @@ export function NotificationNavItem({ selected }: { selected: boolean }) {
         }
     }, [refresh])
 
-    return <Link href="/notifications" aria-label={count ? `Notifications, ${count} unread` : 'Notifications'} aria-current={selected ? 'page' : undefined} title="Notifications" className={`relative flex size-11 items-center justify-center rounded-full ${selected ? 'bg-riff-surface-3 text-riff-accent' : 'text-riff-muted transition hover:bg-white/5 hover:text-riff-text'}`}>
+    return <Link href="/notifications" aria-label={count ? `Notifications, ${count} unread` : 'Notifications'} aria-current={selected ? 'page' : undefined} title="Notifications" className={`relative flex size-10 items-center justify-center rounded-full ${selected ? 'bg-riff-surface-3 text-riff-accent' : 'text-riff-muted transition hover:bg-white/5 hover:text-riff-text'}`}>
         <Icon name="bell" size={18} />
         {count > 0 && <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-riff-accent px-1 text-center text-[10px] font-semibold leading-4 text-riff-accent-ink">{count > 99 ? '99+' : count}</span>}
     </Link>

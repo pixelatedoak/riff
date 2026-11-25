@@ -210,7 +210,10 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
         else {
             const { data: files } = await supabase.from('riff_attachments').select('id, storage_path').eq('riff_id', riffId)
             if (files?.length) {
-                const { error: storageError } = await supabase.storage.from('riff-files').remove(files.map((file) => file.storage_path))
+                const storedFiles = files.filter((file) => !file.storage_path.startsWith('external:'))
+                const { error: storageError } = storedFiles.length
+                    ? await supabase.storage.from('riff-files').remove(storedFiles.map((file) => file.storage_path))
+                    : { error: null }
                 if (!storageError) await supabase.from('riff_attachments').delete().in('id', files.map((file) => file.id))
                 else setMessage('Riff deleted. Its files could not be removed and may need storage cleanup.')
             }

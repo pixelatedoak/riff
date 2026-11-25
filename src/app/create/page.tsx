@@ -38,15 +38,16 @@ export default async function CreateRiffPage({ searchParams }: { searchParams: P
 
     return (
         <main className="min-h-dvh bg-riff-bg pb-28 text-riff-text">
-            <section className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-12 lg:px-10 lg:pt-14">
+            <section className="mx-auto max-w-4xl px-4 pt-6 sm:px-6 sm:pt-10 lg:px-10 lg:pt-12">
                 <Link href={parent ? `/r/${parent.id}` : '/'} className="inline-flex items-center gap-2 text-sm text-riff-muted transition hover:text-riff-text">
                     <span aria-hidden="true">←</span>
-                    {parent ? 'Back to thread' : 'Back to feed'}
+                    {parent ? 'Back to thread' : 'Cancel'}
                 </Link>
-                <p className="riff-overline mt-8">Write into the thread</p>
-                <h1 className="riff-page-heading mt-2">{parent ? 'Add a Riffed branch' : 'Start a Riff'}</h1>
-                <p className="mt-2 text-sm leading-6 text-riff-muted">{parent ? 'Take the original thought somewhere new.' : 'Choose whether your thought stays standalone or leaves room for branches.'}</p>
-                <div className="mt-8">
+                <div className="mb-6 mt-6 flex items-end justify-between gap-4 sm:mt-8">
+                    <div><p className="text-xs font-medium uppercase tracking-[0.16em] text-riff-faint">{parent ? 'Thread reply' : 'Create'}</p><h1 className="mt-1 text-2xl font-semibold tracking-tight text-riff-text">{parent ? 'New branch' : 'New post'}</h1></div>
+                    <p className="hidden max-w-sm text-right text-sm text-riff-muted sm:block">{parent ? 'Add your perspective to this thread.' : 'Write a thought. Add media if you want.'}</p>
+                </div>
+                <div>
                     <RiffComposer authorId={user.id} parent={parent} />
                 </div>
             </section>

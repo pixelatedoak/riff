@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export function FollowProfileButton({ profileId, initialCount }: { profileId: string; initialCount: number }) {
+export function FollowProfileButton({ profileId }: { profileId: string }) {
     const supabase = useMemo(() => createClient(), [])
+    const router = useRouter()
     const [userId, setUserId] = useState<string | null>(null)
     const [following, setFollowing] = useState(false)
     const [status, setStatus] = useState<'checking' | 'ready' | 'error'>('checking')
-    const [count, setCount] = useState(initialCount)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
 
@@ -50,8 +51,8 @@ export function FollowProfileButton({ profileId, initialCount }: { profileId: st
             else if (result.error) setError(result.error.message)
             else {
                 setFollowing(!following)
-                setCount((value) => Math.max(0, value + (following ? -1 : 1)))
                 if (!following) window.dispatchEvent(new Event('riff:notifications-updated'))
+                router.refresh()
             }
         } catch {
             setError('Could not update the follow. Check your connection and try again.')
@@ -62,7 +63,6 @@ export function FollowProfileButton({ profileId, initialCount }: { profileId: st
 
     return <div className="flex flex-col items-end">
         {userId === profileId ? <span className="rounded-full border border-white/10 px-3 py-2 text-xs text-zinc-500">Your profile</span> : status === 'checking' ? <span role="status" className="rounded-full border border-white/10 px-4 py-2 text-sm text-zinc-500">Checking…</span> : status === 'error' ? <span role="status" className="rounded-full border border-white/10 px-4 py-2 text-sm text-zinc-500">Follow status unavailable</span> : userId ? <button type="button" disabled={busy} aria-pressed={following} onClick={() => void toggle()} className="rounded-full border border-riff-accent/20 bg-riff-accent/[0.07] px-4 py-2 text-sm font-medium text-riff-accent-soft hover:bg-riff-accent/[0.12] disabled:opacity-50">{busy ? 'Saving…' : following ? 'Following' : 'Follow'}</button> : <Link href="/auth/login" className="rounded-full border border-riff-accent/20 px-4 py-2 text-sm text-riff-accent-soft hover:bg-riff-accent/[0.07]">Sign in to follow</Link>}
-        <span className="mt-1.5 text-xs text-zinc-500">{count} {count === 1 ? 'follower' : 'followers'}</span>
         {error && <span role="alert" className="mt-1 max-w-48 text-right text-xs text-rose-200">{error}</span>}
     </div>
 }

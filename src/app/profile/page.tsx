@@ -9,7 +9,7 @@ export default async function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/auth/login')
 
-    const [{ data: moderator }, { data, error }, { data: postData }] = await Promise.all([
+    const [{ data: moderator }, { data, error }, { data: postData }, { count: followerCount }, { count: followingCount }] = await Promise.all([
         user.email
             ? supabase.from('riff_moderators').select('email').eq('email', user.email.toLowerCase()).maybeSingle()
             : Promise.resolve({ data: null, error: null }),
@@ -19,6 +19,8 @@ export default async function ProfilePage() {
             .eq('author_id', user.id)
             .order('created_at', { ascending: false })
             .limit(100),
+        supabase.from('riff_follows').select('follower_id', { count: 'exact', head: true }).eq('followed_id', user.id),
+        supabase.from('riff_follows').select('followed_id', { count: 'exact', head: true }).eq('follower_id', user.id),
     ])
 
     const profile: ProfileData = {
@@ -43,7 +45,7 @@ export default async function ProfilePage() {
 
     return (
         <main className="min-h-dvh bg-transparent pb-24 text-zinc-100">
-            <ProfileEditor initialProfile={profile} loadError={error?.message ?? null} initialPosts={posts} authors={authors} initialAttachments={attachments ?? []} isModerator={Boolean(moderator)} />
+            <ProfileEditor initialProfile={profile} loadError={error?.message ?? null} initialPosts={posts} authors={authors} initialAttachments={attachments ?? []} isModerator={Boolean(moderator)} followerCount={followerCount ?? 0} followingCount={followingCount ?? 0} />
             <BottomNavigation active="profile" />
         </main>
     )

@@ -31,8 +31,11 @@ export function ReportInbox({ initialReports }: { initialReports: ReportItem[] }
             const { data: files, error: filesError } = await supabase.from('riff_attachments').select('id, storage_path').eq('riff_id', report.target_id)
             if (filesError) { setError(filesError.message); setBusyId(''); return }
             if (files?.length) {
-                const { error: storageError } = await supabase.storage.from('riff-files').remove(files.map((file) => file.storage_path))
-                if (storageError) { setError(`Post hidden, but files need cleanup: ${storageError.message}`); setBusyId(''); return }
+                const storedFiles = files.filter((file) => !file.storage_path.startsWith('external:'))
+                if (storedFiles.length) {
+                    const { error: storageError } = await supabase.storage.from('riff-files').remove(storedFiles.map((file) => file.storage_path))
+                    if (storageError) { setError(`Post hidden, but files need cleanup: ${storageError.message}`); setBusyId(''); return }
+                }
                 const { error: metadataError } = await supabase.from('riff_attachments').delete().in('id', files.map((file) => file.id))
                 if (metadataError) { setError(metadataError.message); setBusyId(''); return }
             }

@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body>
-        <Script id="riff-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('riff-theme');if(t==='midnight'||t==='plum'||t==='ember')document.documentElement.dataset.theme=t}catch{}" }} />
+        <Script src="/riff-theme-init.js" strategy="beforeInteractive" />
         <Suspense fallback={null}><NavigationProgress /></Suspense>
         {children}
         <ServiceWorkerRegister />

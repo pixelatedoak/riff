@@ -6,7 +6,7 @@ import {
     type LucideIcon,
 } from 'lucide-react'
 
-export type IconName = 'branch' | 'lock' | 'feed' | 'explore' | 'profile' | 'plus' | 'heart' | 'comment' | 'repost' | 'bookmark' | 'share' | 'flag' | 'flame' | 'settings' | 'more' | 'menu' | 'close' | 'trash' | 'link' | 'upload' | 'check' | 'search' | 'home' | 'arrow-left' | 'arrow-up-right' | 'chevron-right' | 'file' | 'image' | 'help' | 'book' | 'moderation' | 'user' | 'bell' | 'palette'
+export type IconName = 'branch' | 'lock' | 'feed' | 'explore' | 'profile' | 'plus' | 'heart' | 'comment' | 'message' | 'repost' | 'bookmark' | 'share' | 'flag' | 'flame' | 'settings' | 'more' | 'menu' | 'close' | 'trash' | 'link' | 'upload' | 'check' | 'search' | 'home' | 'arrow-left' | 'arrow-up-right' | 'chevron-right' | 'file' | 'image' | 'help' | 'book' | 'moderation' | 'user' | 'bell' | 'palette'
 
 const iconMap: Record<IconName, LucideIcon> = {
     branch: GitFork,
@@ -18,6 +18,7 @@ const iconMap: Record<IconName, LucideIcon> = {
     palette: Palette,
     plus: Plus,
     heart: Heart,
+    message: MessageCircle,
     comment: MessageCircle,
     repost: Repeat2,
     bookmark: Bookmark,
@@ -46,6 +47,6 @@ const iconMap: Record<IconName, LucideIcon> = {
 }
 
 export function Icon({ name, size = 18, strokeWidth = 1.8, className }: { name: IconName; size?: number; strokeWidth?: number; className?: string }) {
-    const LucideIcon = iconMap[name]
+    const LucideIcon = iconMap[name] ?? CircleHelp
     return <LucideIcon aria-hidden="true" size={size} strokeWidth={strokeWidth} className={className} />
 }

@@ -11,7 +11,20 @@ export const RIFF_MEDIA_FILTERS: { id: RiffMediaFilter; label: string; css: stri
     { id: 'contrast', label: 'Contrast', css: 'contrast(1.2) saturate(1.1)' },
 ]
 
-export const RIFF_STICKERS = ['✨', '❤️', '🌱', '🔥', '⭐', '😂', '🌙', '🫶']
+export const RIFF_STICKERS = [
+    { id: 'spark', label: 'Spark' },
+    { id: 'heart', label: 'Heart' },
+    { id: 'starburst', label: 'Nice one' },
+    { id: 'idea', label: 'Good idea' },
+    { id: 'riff', label: 'Riff it' },
+    { id: 'branch', label: 'Branch' },
+] as const
+
+export type RiffStickerId = typeof RIFF_STICKERS[number]['id']
+
+export function getRiffStickerLabel(id: string | null | undefined) {
+    return RIFF_STICKERS.find((sticker) => sticker.id === id)?.label ?? 'Sticker'
+}
 
 export function getRiffMediaFilter(id: RiffMediaFilter | null | undefined) {
     return RIFF_MEDIA_FILTERS.find((filter) => filter.id === id)?.css ?? 'none'

@@ -16,16 +16,18 @@ const formatActions: FormatAction[] = [
     { label: '↗', title: 'Link', before: '[', after: '](https://example.com)', placeholder: 'link text' },
 ]
 
-export function MarkdownEditor({ id, value, onChange, maxLength = 1000, rows = 7, placeholder }: {
+export function MarkdownEditor({ id, value, onChange, maxLength = 1000, rows = 7, placeholder, compact = false }: {
     id: string
     value: string
     onChange: (value: string) => void
     maxLength?: number
     rows?: number
     placeholder?: string
+    compact?: boolean
 }) {
     const editorRef = useRef<HTMLTextAreaElement>(null)
     const [view, setView] = useState<'write' | 'preview'>('write')
+    const [toolsOpen, setToolsOpen] = useState(false)
 
     function apply(action: FormatAction) {
         const editor = editorRef.current
@@ -53,15 +55,18 @@ export function MarkdownEditor({ id, value, onChange, maxLength = 1000, rows = 7
     }
 
     return (
-        <section className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface-low" aria-label="Post text editor">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-riff-outline px-3 py-2">
-                <div role="tablist" aria-label="Writing mode" className="flex rounded-lg bg-riff-bg p-1">
+        <section className={`overflow-hidden ${compact ? 'border-b border-riff-outline' : 'rounded-2xl border border-riff-outline bg-riff-surface-low'}`} aria-label="Post text editor">
+            <div className={`flex flex-wrap items-center justify-between gap-2 ${compact ? 'py-2' : 'border-b border-riff-outline px-3 py-2'}`}>
+                {compact ? <span className="text-xs font-medium text-riff-muted">Caption</span> : <div role="tablist" aria-label="Writing mode" className="flex rounded-lg bg-riff-bg p-1">
                     <button type="button" role="tab" aria-selected={view === 'write'} onClick={() => setView('write')} className={`rounded-md px-3 py-1.5 text-xs font-medium ${view === 'write' ? 'bg-riff-surface-3 text-riff-text' : 'text-riff-muted'}`}>Write</button>
                     <button type="button" role="tab" aria-selected={view === 'preview'} onClick={() => setView('preview')} className={`rounded-md px-3 py-1.5 text-xs font-medium ${view === 'preview' ? 'bg-riff-surface-3 text-riff-text' : 'text-riff-muted'}`}>Preview</button>
-                </div>
-                {view === 'write' && <div role="toolbar" aria-label="Text formatting" className="flex flex-wrap items-center gap-1">
+                </div>}
+                {compact && <div className="flex items-center gap-1">
+                    <button type="button" aria-pressed={toolsOpen} onClick={() => setToolsOpen((open) => !open)} className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${toolsOpen ? 'bg-riff-surface-3 text-riff-accent' : 'text-riff-muted hover:bg-riff-surface-3 hover:text-riff-text'}`}>Aa&nbsp; Format</button>
+                    <button type="button" onClick={() => setView((current) => current === 'write' ? 'preview' : 'write')} className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-riff-muted transition hover:bg-riff-surface-3 hover:text-riff-text">{view === 'write' ? 'Preview' : 'Write'}</button>
+                </div>}
+                {view === 'write' && (!compact || toolsOpen) && <div role="toolbar" aria-label="Text formatting" className={`flex items-center gap-1 ${compact ? 'w-full overflow-x-auto border-t border-riff-outline pt-2 sm:w-auto sm:border-0 sm:pt-0' : 'flex-wrap'}`}>
                     {formatActions.map((action) => <button key={action.title} type="button" title={action.title} aria-label={action.title} onClick={() => apply(action)} className="min-h-8 min-w-8 rounded-lg px-2 text-xs font-semibold text-riff-muted transition hover:bg-riff-surface-3 hover:text-riff-text">{action.label}</button>)}
-                    <button type="button" title="Insert a sparkle" aria-label="Insert a sparkle" onClick={() => apply({ label: '✨', title: 'Insert sparkle', before: '', after: '', placeholder: '✨' })} className="min-h-8 min-w-8 rounded-lg px-2 text-sm transition hover:bg-riff-surface-3">✨</button>
                 </div>}
             </div>
             {view === 'write' ? <Textarea
@@ -73,12 +78,12 @@ export function MarkdownEditor({ id, value, onChange, maxLength = 1000, rows = 7
                 maxLength={maxLength}
                 rows={rows}
                 placeholder={placeholder}
-                className="min-h-40 rounded-none border-0 bg-transparent px-4 py-4 text-[15px] leading-7 focus:ring-0"
+                className={`${compact ? 'min-h-36 px-0 py-3 text-lg leading-7' : 'min-h-40 px-4 py-4 text-[15px] leading-7'} rounded-none border-0 bg-transparent focus:ring-0`}
             /> : <div role="tabpanel" className="min-h-40 px-4 py-4 text-[15px] leading-7">
                 {value.trim() ? <RiffContent content={value} /> : <p className="text-sm text-riff-faint">Nothing to preview yet.</p>}
             </div>}
-            <div className="flex items-center justify-between gap-3 border-t border-riff-outline px-4 py-2.5">
-                <p className="text-[11px] text-riff-faint">Markdown supported · bold, lists, quotes, links</p>
+            <div className={`flex items-center justify-between gap-3 ${compact ? 'py-2' : 'border-t border-riff-outline px-4 py-2.5'}`}>
+                <p className="text-[11px] text-riff-faint">{compact ? 'Markdown is optional' : 'Markdown supported · bold, lists, quotes, links'}</p>
                 <span className={`text-xs ${value.length > maxLength ? 'text-rose-300' : 'text-riff-faint'}`}>{value.length}/{maxLength}</span>
             </div>
         </section>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { SignOutButton } from '@/app/signout-button'
 import { ProfileSections } from '@/app/profile/profile-sections'
+import { FollowCounts } from '@/app/profile/follow-counts'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
 import type { RiffAttachment } from '@/lib/riffs/types'
 import { Icon } from '@/components/icon'
@@ -124,13 +125,15 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
     )
 }
 
-export function ProfileEditor({ initialProfile, loadError, initialPosts, authors, initialAttachments, isModerator = false }: {
+export function ProfileEditor({ initialProfile, loadError, initialPosts, authors, initialAttachments, isModerator = false, followerCount = 0, followingCount = 0 }: {
     initialProfile: ProfileData
     loadError: string | null
     initialPosts: RiffRecord[]
     authors: RiffAuthor[]
     initialAttachments: RiffAttachment[]
     isModerator?: boolean
+    followerCount?: number
+    followingCount?: number
 }) {
     const [profile, setProfile] = useState(initialProfile)
     const [draft, setDraft] = useState(() => toDraft(initialProfile))
@@ -430,6 +433,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                             <div className="mt-5">
                                 <h2 className="text-2xl font-semibold tracking-tight text-white">{displayName}</h2>
                                 <p className="mt-1 text-sm text-zinc-500">{profile.username ? `@${profile.username}` : 'Choose a username'}</p>
+                                <FollowCounts profileId={profile.id} username={profile.username} followers={followerCount} following={followingCount} />
                                 {profile.pronouns && <p className="mt-4 text-sm text-zinc-400">{profile.pronouns}</p>}
                                 {profile.description ? <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-6 text-zinc-300">{profile.description}</p> : <p className="mt-3 text-sm text-zinc-600">Add a line or two about yourself.</p>}
                                 {validLinks.length > 0 && (
