@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation'
 import * as Dialog from '@radix-ui/react-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { useRiffFollow, useRiffSocial } from '@/app/riffs/riff-social-provider'
-import { Icon } from '@/components/icon'
+import { Icon, type IconName } from '@/components/icon'
 import { Button } from '@/components/ui/button'
 import { MarkdownEditor } from '@/components/markdown-editor'
 import { Textarea } from '@/components/ui/input'
 
 type CommentRow = { id: string; author_id: string; content: string; created_at: string }
+type ActionCircleItem = { key: string; label: string; disabled: boolean; icon: IconName; activeClass: string; onClick: () => void; count?: number; pressed?: boolean; gold?: boolean }
 
 export function RiffFollowButton({ authorId }: { authorId: string }) {
     const supabase = createClient()
@@ -234,11 +235,16 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
     const visibleActionCount = hasActionOverflow ? Math.min(actionItems.length, Math.max(0, actionCapacity - 1)) : actionItems.length
     const visibleActionItems = actionItems.slice(0, visibleActionCount)
     const isOverflowExpanded = overflowExpandedAtHeight === postCardHeight && hasActionOverflow
+    const mobileReportItems = viewerId && viewerId !== authorId ? [{
+        key: 'report-post', label: 'Report post', disabled: false, icon: 'flag' as const, activeClass: 'text-rose-300',
+        onClick: () => { setReportTarget({ type: 'riff', id: riffId }); setReportReason(''); setReportDetails(''); setMessage(''); setPanel('report') },
+    }] : []
+    const mobileActionItems = [...overflowItems, ...mobileReportItems]
     const expandedItemCount = overflowItems.length + 1
     const expandedStackHeight = expandedItemCount * buttonSize + (expandedItemCount - 1) * railGap + railInset
     const actionRailHeight = isOverflowExpanded ? Math.max(postCardHeight, expandedStackHeight) : postCardHeight
     const circleClass = `relative flex ${compactRail ? 'size-10' : 'size-11'} shrink-0 items-center justify-center rounded-full border border-riff-outline bg-riff-surface text-riff-muted shadow-lg transition hover:-translate-y-0.5 hover:bg-riff-surface-2 hover:text-riff-accent disabled:opacity-50`
-    const renderActionCircle = (item: (typeof actionItems)[number] | (typeof ownerMenuItems)[number]) => <button key={item.key} type="button" title={`${item.label}${'count' in item && item.count ? ` · ${item.count}` : ''}`} aria-label={`${item.label}${'count' in item && item.count !== undefined ? `, ${item.count}` : ''}`} aria-pressed={'pressed' in item ? item.pressed : undefined} disabled={item.disabled} onClick={item.onClick} className={`${circleClass} ${'gold' in item && item.gold ? 'border-white/20 bg-white/[0.07] text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_4px_18px_rgba(214,189,130,0.12)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-px before:rounded-full before:bg-gradient-to-b before:from-white/20 before:via-white/[0.04] before:to-transparent before:content-[\'\'] hover:border-white/30 hover:bg-white/[0.12] hover:text-amber-100' : ''} ${'pressed' in item && item.pressed ? item.activeClass : ''}`}><Icon name={item.icon} size={compactRail ? 16 : 18} className={'gold' in item && item.gold ? 'relative z-10 drop-shadow-[0_0_6px_rgba(251,191,36,0.28)]' : undefined} />{'count' in item && item.count !== undefined && item.count > 0 && <span className="absolute -right-1 -top-1 rounded-full border border-riff-outline bg-riff-surface-3 px-1 text-[9px] leading-4 text-riff-text">{item.count}</span>}</button>
+    const renderActionCircle = (item: ActionCircleItem) => <button key={item.key} type="button" title={`${item.label}${item.count ? ` · ${item.count}` : ''}`} aria-label={`${item.label}${item.count !== undefined ? `, ${item.count}` : ''}`} aria-pressed={item.pressed} disabled={item.disabled} onClick={item.onClick} className={`${circleClass} ${item.gold ? 'border-white/20 bg-white/[0.07] text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_4px_18px_rgba(214,189,130,0.12)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-px before:rounded-full before:bg-gradient-to-b before:from-white/20 before:via-white/[0.04] before:to-transparent before:content-[\'\'] hover:border-white/30 hover:bg-white/[0.12] hover:text-amber-100' : ''} ${item.pressed ? item.activeClass : ''}`}><Icon name={item.icon} size={compactRail ? 16 : 18} className={item.gold ? 'relative z-10 drop-shadow-[0_0_6px_rgba(251,191,36,0.28)]' : undefined} />{item.count !== undefined && item.count > 0 && <span className="absolute -right-1 -top-1 rounded-full border border-riff-outline bg-riff-surface-3 px-1 text-[9px] leading-4 text-riff-text">{item.count}</span>}</button>
 
     useEffect(() => {
         const layout = actionRailRef.current?.closest('[data-riff-post-layout]')
@@ -259,10 +265,10 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
     return (
         <div className={floating ? 'contents' : 'mt-4 border-t border-white/[0.06] pt-3'}>
             {floating ? <>
-                <div className="col-start-1 row-start-2 flex flex-wrap items-center gap-2 lg:hidden">
-                    {viewerId && viewerId !== authorId && <button type="button" aria-label="Report post" title="Report post" onClick={() => { setReportTarget({ type: 'riff', id: riffId }); setReportReason(''); setReportDetails(''); setMessage(''); setPanel('report') }} className={circleClass}><Icon name="flag" size={16} /></button>}
-                    {isOverflowExpanded ? <div id={`riff-mobile-actions-${riffId}`} className="flex basis-full flex-wrap items-center gap-2">{overflowItems.map((item) => renderActionCircle(item))}</div> : (hasActionOverflow ? visibleActionItems : overflowItems).map((item) => renderActionCircle(item))}
-                    {hasActionOverflow && <button type="button" aria-label={isOverflowExpanded ? 'Collapse post actions' : 'Show more post actions'} aria-expanded={isOverflowExpanded} aria-controls={`riff-mobile-actions-${riffId}`} onClick={() => setOverflowExpandedAtHeight(isOverflowExpanded ? null : postCardHeight)} className={circleClass}><Icon name={isOverflowExpanded ? 'close' : 'menu'} size={18} /></button>}
+                <div role="group" aria-label="Post actions" tabIndex={0} className="col-start-1 row-start-2 mt-2 w-full min-w-0 overflow-x-auto overscroll-x-contain lg:hidden">
+                    <div className="mx-auto flex w-max min-w-full items-center justify-center gap-2 px-1 py-1">
+                        {mobileActionItems.map((item) => renderActionCircle(item))}
+                    </div>
                 </div>
                 {viewerId && viewerId !== authorId && <aside aria-label="Post report" className="col-start-1 row-start-1 hidden justify-center pt-3 lg:flex">
                     <button type="button" aria-label="Report post" title="Report post" onClick={() => { setReportTarget({ type: 'riff', id: riffId }); setReportReason(''); setReportDetails(''); setMessage(''); setPanel('report') }} className={circleClass}><Icon name="flag" size={16} /></button>
