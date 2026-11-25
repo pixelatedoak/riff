@@ -21,8 +21,8 @@ export default function Image() {
                     <div style={{ marginLeft: 12, borderLeft: '1px solid rgba(255,255,255,0.18)', paddingLeft: 18, color: '#a9aa9f', fontSize: 16 }}>A social space for ideas</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 850 }}>
-                    <div style={{ fontSize: 68, lineHeight: 1.08, letterSpacing: -2.5, fontWeight: 700 }}>Start a thought.<br />Let it branch.</div>
-                    <div style={{ color: '#b4b4a8', fontSize: 23, lineHeight: 1.45 }}>Open Riffs grow through collaboration.<br />Black Riffs keep a thought yours.</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', fontSize: 68, lineHeight: 1.08, letterSpacing: -2.5, fontWeight: 700 }}><span>Start a thought.</span><span>Let it branch.</span></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', color: '#b4b4a8', fontSize: 23, lineHeight: 1.45 }}><span>Open Riffs grow through collaboration.</span><span>Black Riffs keep a thought yours.</span></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#d6bd82', fontSize: 15, letterSpacing: 2, textTransform: 'uppercase' }}>
                     <div style={{ width: 34, height: 1, background: '#d6bd82' }} />Make a thought worth building on

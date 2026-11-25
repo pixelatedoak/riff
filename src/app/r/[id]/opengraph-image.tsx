@@ -35,7 +35,7 @@ export default async function Image({ params }: { params?: Promise<{ id: string 
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 38, position: 'relative' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 22, maxWidth: preview?.imageUrl ? 660 : 1010, flex: 1 }}>
-                    <div style={{ color: '#b4b5a9', fontSize: 19 }}>A thought from <span style={{ color: '#e6e4dc', fontWeight: 600 }}>{author}</span></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#b4b5a9', fontSize: 19 }}>A thought from <span style={{ color: '#e6e4dc', fontWeight: 600 }}>{author}</span></div>
                     <div style={{ borderLeft: '3px solid #d6bd82', paddingLeft: 25, fontSize: preview?.imageUrl ? 41 : 47, fontWeight: 650, lineHeight: 1.17, letterSpacing: -1.2, maxHeight: 300, overflow: 'hidden' }}>{excerpt}</div>
                 </div>
                 {preview?.imageUrl && <img src={preview.imageUrl} alt="" width="320" height="350" style={{ width: 320, height: 350, objectFit: 'cover', borderRadius: 22, border: '1px solid rgba(255,255,255,0.16)' }} />}
