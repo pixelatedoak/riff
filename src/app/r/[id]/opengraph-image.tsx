@@ -4,9 +4,10 @@ import { getRiffPreviewData } from '@/lib/riffs/preview'
 export const alt = 'A Riff shared on Riff'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+export const dynamic = 'force-dynamic'
 
-export default async function Image({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params
+export default async function Image({ params }: { params?: Promise<{ id: string }> }) {
+    const { id } = params ? await params : { id: '' }
     const preview = /^[0-9a-f-]{36}$/i.test(id) ? await getRiffPreviewData(id) : null
     const title = preview?.content || 'A thought, ready to branch.'
     const excerpt = title.length > 180 ? `${title.slice(0, 177).trimEnd()}…` : title
