@@ -21,6 +21,9 @@ export type RiffAttachment = {
     public_url: string
     mime_type: string
     byte_size: number
+    media_filter?: 'none' | 'mono' | 'warm' | 'cool' | 'fade' | 'contrast'
+    sticker?: string | null
+    sort_order?: number
 }
 
 export type RiffAuthor = {

@@ -1,9 +1,44 @@
 @import "tailwindcss";
 
 :root {
+    --riff-bg: #0e110f;
+    --riff-surface: #151916;
+    --riff-surface-low: #111411;
+    --riff-surface-2: #1b201c;
+    --riff-surface-3: #232923;
+    --riff-text: #f1f0e8;
+    --riff-muted: #a4aaa0;
+    --riff-faint: #727a71;
+    --riff-outline: rgb(230 232 216 / 10%);
+    --riff-accent: #d6bd82;
+    --riff-accent-hover: #e3cf9e;
+    --riff-accent-soft: #ead9ad;
+    --riff-accent-ink: #211d13;
+    --radius: 0.9rem;
+}
+
+@theme inline {
+    --color-riff-bg: var(--riff-bg);
+    --color-riff-surface: var(--riff-surface);
+    --color-riff-surface-low: var(--riff-surface-low);
+    --color-riff-surface-2: var(--riff-surface-2);
+    --color-riff-surface-3: var(--riff-surface-3);
+    --color-riff-text: var(--riff-text);
+    --color-riff-muted: var(--riff-muted);
+    --color-riff-faint: var(--riff-faint);
+    --color-riff-outline: var(--riff-outline);
+    --color-riff-accent: var(--riff-accent);
+    --color-riff-accent-hover: var(--riff-accent-hover);
+    --color-riff-accent-soft: var(--riff-accent-soft);
+    --color-riff-accent-ink: var(--riff-accent-ink);
+    --radius-card: calc(var(--radius) + 0.35rem);
+    --radius-control: var(--radius);
+}
+
+:root {
     color-scheme: dark;
-    background: #0b0b10;
-    color: #f4f4f5;
+    background: var(--riff-bg);
+    color: var(--riff-text);
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -17,7 +52,7 @@
 
 html {
     min-height: 100%;
-    background: #0b0b10;
+    background: var(--riff-bg);
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
 }
@@ -25,10 +60,7 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    background:
-        radial-gradient(80rem 36rem at 50% -12rem, rgb(91 74 163 / 14%), transparent 68%),
-        #0b0b10;
-    background-attachment: fixed;
+    background: var(--riff-bg);
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
 }
@@ -67,6 +99,42 @@ select {
 }
 
 ::selection {
-    background: #5b4aa3;
-    color: #fff;
+    background: #5f593f;
+    color: var(--riff-text);
+}
+
+.riff-page-heading {
+    color: var(--riff-text);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2.15rem, 4.5vw, 3.25rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 1.06;
+}
+
+.riff-overline {
+    color: var(--riff-muted);
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.riff-link {
+    color: var(--riff-accent-soft);
+    text-decoration: underline;
+    text-decoration-color: rgb(234 217 173 / 38%);
+    text-underline-offset: 3px;
+}
+
+.riff-link:hover {
+    color: var(--riff-text);
+    text-decoration-color: currentColor;
+}
+
+@keyframes riff-progress {
+    0% { transform: translateX(-110%); }
+    55% { transform: translateX(160%); }
+    100% { transform: translateX(330%); }
 }

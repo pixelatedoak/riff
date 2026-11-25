@@ -7,6 +7,9 @@ import { SignOutButton } from '@/app/signout-button'
 import { ProfileSections } from '@/app/profile/profile-sections'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
 import type { RiffAttachment } from '@/lib/riffs/types'
+import { Icon } from '@/components/icon'
+import { Button } from '@/components/ui/button'
+import { Input, Textarea } from '@/components/ui/input'
 
 export type ProfileData = {
     id: string
@@ -23,7 +26,7 @@ type ProfileDraft = Omit<ProfileData, 'links'> & { linksText: string }
 const sections = ['Posts', 'Riffs', 'Black Riffs', 'Reposts', 'Liked', 'Saved']
 type SortOrder = 'Newest first' | 'Oldest first'
 
-const fieldClassName = 'w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3 py-2.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20'
+const fieldClassName = 'w-full rounded-control border border-riff-outline bg-riff-surface-low px-3 py-2.5 text-sm text-riff-text outline-none placeholder:text-riff-faint focus:border-riff-accent focus:ring-2 focus:ring-riff-accent/20'
 
 function safeWebUrl(value: string) {
     const candidate = value.trim()
@@ -75,14 +78,14 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
         .filter((url): url is URL => url !== null)
 
     return (
-        <aside className="rounded-2xl border border-white/[0.08] bg-[#0d0d11] p-3.5 sm:p-4">
+        <aside className="rounded-card border border-riff-outline bg-riff-surface-low p-3.5 sm:p-4">
             <div className="mb-3 flex items-center justify-between px-1">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Live preview</span>
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-emerald-300/80"><span className="size-1.5 rounded-full bg-emerald-300" />Private</span>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#15151b]">
-                <div className="relative h-24 overflow-hidden bg-gradient-to-br from-violet-500/45 via-fuchsia-500/20 to-cyan-400/20">
+            <div className="overflow-hidden rounded-xl border border-riff-outline bg-riff-surface">
+                <div className="relative z-0 h-24 overflow-hidden bg-riff-surface-3">
                     <div aria-hidden="true" className="absolute -right-5 -top-16 size-48 rounded-full border border-white/15" />
                     <div aria-hidden="true" className="absolute right-7 -top-8 size-32 rounded-full border border-white/10" />
                     <svg aria-hidden="true" viewBox="0 0 160 80" fill="none" className="absolute bottom-0 right-0 h-16 w-32 text-white/35" stroke="currentColor" strokeWidth="1">
@@ -93,8 +96,8 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
                     </svg>
                 </div>
 
-                <div className="px-4 pb-4">
-                    <div className="-mt-8 flex size-16 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-[#15151b] bg-[#25232e] text-base font-semibold text-violet-100 shadow-lg">
+                <div className="relative z-10 px-4 pb-4">
+                    <div className="relative z-20 -mt-8 flex size-16 items-center justify-center overflow-hidden rounded-2xl border-[3px] border-riff-surface bg-riff-surface-3 text-base font-semibold text-riff-accent">
                         {previewAvatar ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={previewAvatar.toString()} alt="" className="size-full object-cover" />
@@ -109,7 +112,7 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
                     {previewLinks.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
                             {previewLinks.slice(0, 3).map((url) => (
-                                <span key={url.toString()} className="rounded-full border border-violet-300/15 bg-violet-300/[0.06] px-2 py-1 text-[10px] text-violet-200/90">{url.hostname}</span>
+                                <span key={url.toString()} className="rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-2 py-1 text-[10px] text-amber-200/90">{url.hostname}</span>
                             ))}
                             {previewLinks.length > 3 && <span className="px-1 py-1 text-[10px] text-zinc-500">+{previewLinks.length - 3}</span>}
                         </div>
@@ -303,8 +306,8 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
         <div className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-12">
             <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-300">Your space / identity</p>
-                    <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Profile</h1>
+                    <p className="riff-overline">Your space / identity</p>
+                    <h1 className="riff-page-heading mt-1 text-3xl sm:text-4xl">Profile</h1>
                 </div>
 
                 <details className="group relative">
@@ -319,6 +322,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                         <button type="button" onClick={copyProfileLink} disabled={!profile.username} className="w-full rounded-lg px-3 py-2 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:text-zinc-600">
                             {copied ? 'Link copied' : 'Copy profile link'}
                         </button>
+                        <Link href="/settings" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white"><Icon name="settings" size={15} />Account settings</Link>
                         {isModerator && <Link href="/moderation" className="block rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Moderation inbox</Link>}
                         <div className="my-1 border-t border-white/10" />
                         <SignOutButton />
@@ -326,7 +330,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                 </details>
             </div>
 
-            <section aria-label="Profile details" className="rounded-3xl border border-white/[0.08] bg-[#121216] shadow-[0_24px_90px_rgba(0,0,0,0.22)]">
+            <section aria-label="Profile details" className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface shadow-[0_24px_90px_rgba(0,0,0,0.2)]">
                 {editing ? (
                     <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
                     <form onSubmit={saveProfile} className="space-y-5">
@@ -344,7 +348,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                             <div>
                                 <p className="text-sm font-medium text-zinc-200">Profile picture</p>
                                 <p className="text-xs text-zinc-500">JPG, PNG, or WebP · max 5 MB</p>
-                                <label htmlFor="avatar-upload" className={`mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-violet-300/15 bg-violet-300/[0.06] px-3 py-1.5 text-xs font-medium text-violet-200 transition hover:bg-violet-300/10 ${uploadingAvatar ? 'pointer-events-none opacity-50' : ''}`}>
+                                <label htmlFor="avatar-upload" className={`mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-300/10 ${uploadingAvatar ? 'pointer-events-none opacity-50' : ''}`}>
                                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-3.5" stroke="currentColor" strokeWidth="1.7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V14" /></svg>
                                     {uploadingAvatar ? 'Uploading…' : 'Upload image'}
                                 </label>
@@ -355,45 +359,45 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                         <div className="grid gap-3 sm:grid-cols-2">
                             <label className="block text-sm text-zinc-300">
                                 Username
-                                <input value={draft.username} onChange={(event) => updateDraft('username', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="yourname" maxLength={24} autoComplete="nickname" />
+                                <Input value={draft.username} onChange={(event) => updateDraft('username', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="yourname" maxLength={24} autoComplete="nickname" />
                             </label>
                             <label className="block text-sm text-zinc-300">
                                 Name
-                                <input value={draft.full_name} onChange={(event) => updateDraft('full_name', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="Your name" maxLength={80} autoComplete="name" />
+                                <Input value={draft.full_name} onChange={(event) => updateDraft('full_name', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="Your name" maxLength={80} autoComplete="name" />
                             </label>
                             <label className="block text-sm text-zinc-300">
                                 Pronouns
-                                <input value={draft.pronouns} onChange={(event) => updateDraft('pronouns', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="they/them" maxLength={40} />
+                                <Input value={draft.pronouns} onChange={(event) => updateDraft('pronouns', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="they/them" maxLength={40} />
                             </label>
                             <label className="block text-sm text-zinc-300">
                                 Profile picture URL
-                                <input value={draft.avatar_url} onChange={(event) => updateDraft('avatar_url', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="https://example.com/photo.jpg" type="url" />
+                                <Input value={draft.avatar_url} onChange={(event) => updateDraft('avatar_url', event.target.value)} className={`${fieldClassName} mt-1.5`} placeholder="https://example.com/photo.jpg" type="url" />
                             </label>
                         </div>
 
                         <label className="block text-sm text-zinc-300">
                             Description
-                            <textarea value={draft.description} onChange={(event) => updateDraft('description', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-24 resize-y`} placeholder="A little about you" maxLength={280} />
+                            <Textarea value={draft.description} onChange={(event) => updateDraft('description', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-24 resize-y`} placeholder="A little about you" maxLength={280} />
                             <span className="mt-1 block text-right text-xs text-zinc-600">{draft.description.length}/280</span>
                         </label>
 
                         <label className="block text-sm text-zinc-300">
                             Links <span className="font-normal text-zinc-500">(one per line)</span>
-                            <textarea value={draft.linksText} onChange={(event) => updateDraft('linksText', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-20 resize-y`} placeholder="https://example.com" />
+                            <Textarea value={draft.linksText} onChange={(event) => updateDraft('linksText', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-20 resize-y`} placeholder="https://example.com" />
                         </label>
 
                         {error && <p role="alert" className="rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-300">{error}</p>}
 
                         <div className="flex justify-end gap-2 pt-1">
-                            <button type="button" onClick={cancelEdit} disabled={saving || uploadingAvatar} className="rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-white/5 hover:text-white disabled:opacity-50">Cancel</button>
-                            <button type="submit" disabled={saving || uploadingAvatar} className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-400 disabled:cursor-wait disabled:opacity-60">{saving ? 'Saving…' : 'Save profile'}</button>
+                            <Button type="button" variant="ghost" onClick={cancelEdit} disabled={saving || uploadingAvatar}>Cancel</Button>
+                            <Button type="submit" disabled={saving || uploadingAvatar}>{saving ? 'Saving…' : 'Save profile'}</Button>
                         </div>
                     </form>
                     <ProfilePreview profile={draft} />
                     </div>
                 ) : (
                     <>
-                        <div className="relative h-32 overflow-hidden rounded-t-3xl bg-gradient-to-br from-violet-500/35 via-fuchsia-500/15 to-cyan-400/15 sm:h-40">
+                        <div className="relative h-32 overflow-hidden bg-riff-surface-3 sm:h-40">
                             <div aria-hidden="true" className="absolute -right-10 -top-28 size-80 rounded-full border border-white/[0.08]" />
                             <div aria-hidden="true" className="absolute right-20 -top-20 size-64 rounded-full border border-white/[0.07]" />
                             <svg aria-hidden="true" viewBox="0 0 320 150" fill="none" className="absolute bottom-0 right-0 h-28 w-64 text-white/35 sm:h-36 sm:w-80" stroke="currentColor" strokeWidth="1">
@@ -406,13 +410,13 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                         </div>
                         <div className="px-5 pb-6 sm:px-7 sm:pb-8">
                             <div className="-mt-11 flex flex-wrap items-end justify-between gap-4">
-                                <div className="relative z-10 flex size-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#121216] bg-[#24212e] text-2xl font-semibold text-violet-100 shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
+                                <div className="relative z-10 flex size-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#121216] bg-[#24212e] text-2xl font-semibold text-amber-100 shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl.toString()} alt={`${displayName} profile picture`} className="size-full object-cover" />
                                     ) : getInitials(profile)}
                                 </div>
-                                <button type="button" onClick={() => { setDraft(toDraft(profile)); setEditing(true); setError(null); setNotice('') }} className="mb-1 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-zinc-200 transition hover:border-violet-300/25 hover:bg-violet-300/[0.06] hover:text-white">
+                                <button type="button" onClick={() => { setDraft(toDraft(profile)); setEditing(true); setError(null); setNotice('') }} className="mb-1 inline-flex items-center gap-2 rounded-control border border-riff-outline bg-riff-surface-2 px-4 py-2.5 text-sm font-medium text-riff-text transition hover:bg-riff-surface-3">
                                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L8 18l-4 1 1-4 11.5-11.5z" /></svg>
                                     Edit profile
                                 </button>
@@ -426,7 +430,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                                 {validLinks.length > 0 && (
                                     <ul className="mt-5 flex flex-wrap gap-2">
                                         {validLinks.map(({ link, url }) => (
-                                            <li key={link}><a href={url!.toString()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-violet-300/15 bg-violet-300/[0.05] px-3 py-1.5 text-xs text-violet-200 hover:bg-violet-300/10">
+                                            <li key={link}><a href={url!.toString()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-riff-accent/20 bg-riff-accent/5 px-3 py-1.5 text-xs text-riff-accent hover:bg-riff-accent/10">
                                                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-3" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M10 13a5 5 0 007.07 0l3-3A5 5 0 0013 2.93l-1.72 1.72M14 11a5 5 0 00-7.07 0l-3 3A5 5 0 0011 21.07l1.72-1.72" /></svg>
                                                 {url!.hostname}
                                             </a></li>
@@ -452,7 +456,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                     </div>
                     <label className="shrink-0 text-xs text-zinc-500">
                         <span className="sr-only">Sort activity</span>
-                        <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)} className="rounded-lg border border-white/10 bg-[#141417] px-2.5 py-2 text-xs text-zinc-300 outline-none focus:border-violet-400">
+                        <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)} className="rounded-lg border border-white/10 bg-[#141417] px-2.5 py-2 text-xs text-zinc-300 outline-none focus:border-amber-400">
                             <option>Newest first</option>
                             <option>Oldest first</option>
                         </select>

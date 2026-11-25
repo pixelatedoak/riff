@@ -1,14 +1,38 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { BottomNavigation } from '@/app/bottom-navigation'
 import { RiffTree } from '@/app/riffs/riff-tree'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
 import { createClient } from '@/lib/supabase/server'
+import { getRiffPreviewData } from '@/lib/riffs/preview'
 
 const riffColumns = 'id, author_id, parent_riff_id, root_riff_id, kind, content, created_at, comments_enabled, allow_branches, deleted_at'
 const branchPageSize = 100
+type RiffPageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ offset?: string | string[] }> }
 
-export default async function RiffThreadPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ offset?: string | string[] }> }) {
+export async function generateMetadata({ params }: RiffPageProps): Promise<Metadata> {
+    const { id } = await params
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return { title: 'Riff' }
+    const preview = await getRiffPreviewData(id)
+    if (!preview) return { title: 'Riff not found', robots: { index: false, follow: false } }
+
+    const title = `${preview.kind === 'black' ? 'Black Riff' : 'Open Riff'} by ${preview.authorName}`
+    const description = preview.attachmentCount > 0
+        ? `${preview.description} · ${preview.attachmentCount} ${preview.attachmentCount === 1 ? 'attachment' : 'attachments'}`
+        : preview.description
+    const image = `/r/${id}/opengraph-image`
+
+    return {
+        title,
+        description,
+        alternates: { canonical: `/r/${id}` },
+        openGraph: { type: 'article', siteName: 'Riff', title, description, url: `/r/${id}`, images: [{ url: image, width: 1200, height: 630, alt: `Preview of ${title}` }] },
+        twitter: { card: 'summary_large_image', title, description, images: [image] },
+    }
+}
+
+export default async function RiffThreadPage({ params, searchParams }: RiffPageProps) {
     const [{ id }, query] = await Promise.all([params, searchParams])
     if (!/^[0-9a-f-]{36}$/i.test(id)) notFound()
     const rawOffset = Array.isArray(query.offset) ? query.offset[0] : query.offset
@@ -53,7 +77,7 @@ export default async function RiffThreadPage({ params, searchParams }: { params:
         : { data: [] }
     const authors = (authorData ?? []) as RiffAuthor[]
     const { data: attachmentData } = riffs.length > 0
-        ? await supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size').in('riff_id', riffs.map((entry) => entry.id))
+        ? await supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size, media_filter, sticker, sort_order').in('riff_id', riffs.map((entry) => entry.id)).order('sort_order', { ascending: true }).order('created_at', { ascending: true })
         : { data: [] }
     const root = riffs.find((entry) => entry.id === requested.root_riff_id)
     const nextOffset = offset + branchPageSize
@@ -61,13 +85,13 @@ export default async function RiffThreadPage({ params, searchParams }: { params:
 
     return (
         <main className="min-h-dvh bg-transparent pb-28 text-zinc-100">
-            <section className="mx-auto max-w-3xl px-4 pt-8 sm:px-6 sm:pt-12">
+            <section className="mx-auto max-w-3xl px-4 pt-8 sm:px-6 sm:pt-12 lg:max-w-5xl lg:px-10 lg:pt-14">
                 <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-200">
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" /></svg>
                     Back to feed
                 </Link>
                 <div className="mb-5 mt-8">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-300">Riff thread</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300">Riff thread</p>
                     <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">{root?.kind === 'black' ? 'Black Riff' : 'An open thought'}</h1>
                     <p className="mt-1 text-sm text-zinc-500">{totalBranchCount ?? 0} {(totalBranchCount ?? 0) === 1 ? 'branch' : 'branches'}</p>
                 </div>

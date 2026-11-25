@@ -9,26 +9,21 @@ export default async function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/auth/login')
 
-    const { data: moderator } = user.email
-        ? await supabase.from('riff_moderators').select('email').eq('email', user.email.toLowerCase()).maybeSingle()
-        : { data: null }
-
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, pronouns, description, avatar_url, links')
-        .eq('id', user.id)
-        .maybeSingle()
-
-    const { data: postData } = await supabase
-        .from('riffs')
-        .select('id, author_id, parent_riff_id, root_riff_id, kind, content, created_at, comments_enabled, allow_branches, deleted_at')
-        .eq('author_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(100)
+    const [{ data: moderator }, { data, error }, { data: postData }] = await Promise.all([
+        user.email
+            ? supabase.from('riff_moderators').select('email').eq('email', user.email.toLowerCase()).maybeSingle()
+            : Promise.resolve({ data: null, error: null }),
+        supabase.from('profiles').select('id, username, full_name, pronouns, description, avatar_url, links').eq('id', user.id).maybeSingle(),
+        supabase.from('riffs')
+            .select('id, author_id, parent_riff_id, root_riff_id, kind, content, created_at, comments_enabled, allow_branches, deleted_at')
+            .eq('author_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(100),
+    ])
 
     const profile: ProfileData = {
         id: user.id,
-        username: data?.username ?? '',
+        username: data?.username ?? String(user.user_metadata?.username ?? ''),
         full_name: data?.full_name ?? String(user.user_metadata?.full_name ?? ''),
         pronouns: data?.pronouns ?? '',
         description: data?.description ?? '',
@@ -43,7 +38,7 @@ export default async function ProfilePage() {
         avatar_url: profile.avatar_url || null,
     }]
     const { data: attachments } = posts.length > 0
-        ? await supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size').in('riff_id', posts.map((post) => post.id))
+        ? await supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size, media_filter, sticker, sort_order').in('riff_id', posts.map((post) => post.id)).order('sort_order', { ascending: true }).order('created_at', { ascending: true })
         : { data: [] }
 
     return (

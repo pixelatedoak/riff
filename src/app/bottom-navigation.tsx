@@ -1,46 +1,26 @@
 import Link from 'next/link'
+import { Icon } from '@/components/icon'
 
 type BottomNavigationProps = {
-    active: 'feed' | 'profile' | 'none'
+    active: 'feed' | 'explore' | 'profile' | 'none'
 }
 
 export function BottomNavigation({ active }: BottomNavigationProps) {
-    const activeClass = 'bg-white/[0.06] text-violet-300'
-    const idleClass = 'text-zinc-500 transition hover:bg-white/5 hover:text-zinc-200'
+    const activeClass = 'bg-riff-surface-3 text-riff-accent'
+    const idleClass = 'text-riff-muted transition hover:bg-white/5 hover:text-riff-text'
+    const items = [
+        { href: '/', label: 'Feed', icon: 'feed' as const, selected: active === 'feed' },
+        { href: '/explore', label: 'Explore', icon: 'explore' as const, selected: active === 'explore' },
+        { href: '/create', label: 'Create a Riff', icon: 'plus' as const, selected: false, create: true },
+        { href: '/profile', label: 'Profile', icon: 'profile' as const, selected: active === 'profile' },
+    ]
 
     return (
-        <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-20 px-4 pb-[calc(env(safe-area-inset-bottom)+0.65rem)]">
-            <div className="mx-auto flex w-fit items-center gap-1 rounded-full border border-white/10 bg-[#19191e]/90 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.55)] backdrop-blur-xl">
-                <Link
-                    href="/"
-                    aria-label="Feed"
-                    aria-current={active === 'feed' ? 'page' : undefined}
-                    title="Feed"
-                    className={`flex size-11 items-center justify-center rounded-full ${active === 'feed' ? activeClass : idleClass}`}
-                >
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-[18px]" stroke="currentColor" strokeWidth="1.8">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5.75h16M4 12h16M4 18.25h16" />
-                    </svg>
-                </Link>
-
-                <Link href="/create" aria-label="Create a Riff" title="Create a Riff" className="flex size-11 items-center justify-center rounded-full bg-violet-300 text-[#17121f] shadow-[0_3px_14px_rgba(196,181,253,0.2)] transition hover:bg-violet-200">
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-[19px]" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m7-7H5" />
-                    </svg>
-                </Link>
-
-                <Link
-                    href="/profile"
-                    aria-label="Profile"
-                    aria-current={active === 'profile' ? 'page' : undefined}
-                    title="Profile"
-                    className={`flex size-11 items-center justify-center rounded-full ${active === 'profile' ? activeClass : idleClass}`}
-                >
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-[18px]" stroke="currentColor" strokeWidth="1.8">
-                        <circle cx="12" cy="8" r="3.25" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 20a6.5 6.5 0 0113 0" />
-                    </svg>
-                </Link>
+        <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.65rem)]">
+            <div className="mx-auto flex w-fit items-center gap-1 rounded-full border border-riff-outline bg-riff-surface/95 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.42)] backdrop-blur-xl">
+                {items.map((item) => <Link key={item.href} href={item.href} aria-label={item.label} aria-current={item.selected ? 'page' : undefined} title={item.label} className={`flex size-11 items-center justify-center rounded-full ${item.create ? 'bg-riff-accent text-riff-accent-ink transition hover:bg-riff-accent-hover' : item.selected ? activeClass : idleClass}`}>
+                    <Icon name={item.icon} size={item.create ? 19 : 18} strokeWidth={item.create ? 2 : 1.8} />
+                </Link>)}
             </div>
         </nav>
     )

@@ -6,7 +6,7 @@ create table if not exists public.riffs (
     parent_riff_id uuid references public.riffs(id) on delete cascade,
     root_riff_id uuid not null references public.riffs(id) on delete cascade,
     kind text not null check (kind in ('riff', 'black')),
-    content text not null check (char_length(trim(content)) between 1 and 1000),
+    content text not null check (char_length(trim(content)) between 0 and 1000),
     comments_enabled boolean not null default true,
     allow_branches boolean not null default true,
     deleted_at timestamptz,

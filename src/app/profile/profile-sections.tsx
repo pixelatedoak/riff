@@ -5,6 +5,7 @@ import { RiffPosts } from '@/app/riffs/riff-tree'
 import type { RiffAuthor, RiffRecord } from '@/lib/riffs/types'
 import type { RiffAttachment } from '@/lib/riffs/types'
 import { createClient } from '@/lib/supabase/client'
+import * as Tabs from '@radix-ui/react-tabs'
 
 export function ProfileSections({ sections, profileName, profileId, posts = [], authors = [], attachments = [], sortOrder = 'Newest first' }: {
     sections: string[]
@@ -53,7 +54,7 @@ export function ProfileSections({ sections, profileName, profileId, posts = [], 
             const authorIds = [...new Set(nextPosts.map((post) => post.author_id))]
             const [{ data: authorData }, { data: attachmentData }] = await Promise.all([
                 authorIds.length ? supabase.from('profiles').select('id, username, full_name, avatar_url').in('id', authorIds) : Promise.resolve({ data: [] }),
-                supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size').in('riff_id', ids),
+                supabase.from('riff_attachments').select('id, riff_id, filename, storage_path, public_url, mime_type, byte_size, media_filter, sticker, sort_order').in('riff_id', ids).order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
             ])
             if (current) {
                 setActivityPosts(nextPosts)
@@ -83,23 +84,20 @@ export function ProfileSections({ sections, profileName, profileId, posts = [], 
             : (isActivityTab ? 0 : left.created_at.localeCompare(right.created_at)))
 
     return (
-        <>
-            <div role="tablist" aria-label="Profile activity sections" className="mt-5 flex gap-1 overflow-x-auto border-b border-white/10 pb-px">
+        <Tabs.Root value={activeSection} onValueChange={setActiveSection}>
+            <Tabs.List aria-label="Profile activity sections" className="mt-5 flex gap-1 overflow-x-auto border-b border-riff-outline pb-px">
                 {sections.map((section) => (
-                    <button
+                    <Tabs.Trigger
                         key={section}
-                        type="button"
-                        role="tab"
-                        aria-selected={activeSection === section}
-                        onClick={() => setActiveSection(section)}
-                        className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${activeSection === section ? 'border-violet-400 text-violet-300' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                        value={section}
+                        className={`shrink-0 border-b-2 px-3.5 py-3 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-riff-accent ${activeSection === section ? 'border-riff-accent text-riff-accent-soft' : 'border-transparent text-riff-faint hover:text-riff-text'}`}
                     >
                         {section}
-                    </button>
+                    </Tabs.Trigger>
                 ))}
-            </div>
+            </Tabs.List>
 
-            <div role="tabpanel" className="min-h-40 py-5">
+            <Tabs.Content value={activeSection} className="min-h-40 py-5 focus-visible:outline-none">
                 {visiblePosts.length > 0 ? (
                     <RiffPosts riffs={visiblePosts} authors={isActivityTab ? activityAuthors : authors} attachments={(isActivityTab ? activityAttachments : attachments).filter((attachment) => visiblePosts.some((post) => post.id === attachment.riff_id))} />
                 ) : activityLoading ? (
@@ -113,7 +111,7 @@ export function ProfileSections({ sections, profileName, profileId, posts = [], 
                     </div>
                 )}
                 {visibleActivityError && <p role="alert" className="mt-3 text-center text-sm text-rose-200">{visibleActivityError}</p>}
-            </div>
-        </>
+            </Tabs.Content>
+        </Tabs.Root>
     )
 }

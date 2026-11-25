@@ -37,16 +37,16 @@ export default async function CreateRiffPage({ searchParams }: { searchParams: P
     }
 
     return (
-        <main className="min-h-dvh bg-transparent pb-28 text-zinc-100">
-            <section className="mx-auto max-w-2xl px-4 pt-8 sm:px-6 sm:pt-12">
-                <Link href={parent ? `/r/${parent.id}` : '/'} className="inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-200">
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7 7l-7-7 7-7" /></svg>
+        <main className="min-h-dvh bg-riff-bg pb-28 text-riff-text">
+            <section className="mx-auto max-w-5xl px-4 pt-8 sm:px-6 sm:pt-12 lg:px-10 lg:pt-14">
+                <Link href={parent ? `/r/${parent.id}` : '/'} className="inline-flex items-center gap-2 text-sm text-riff-muted transition hover:text-riff-text">
+                    <span aria-hidden="true">←</span>
                     {parent ? 'Back to thread' : 'Back to feed'}
                 </Link>
-                <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-300">Write into the thread</p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">{parent ? 'Add a Riffed branch' : 'Start a Riff'}</h1>
-                <p className="mt-2 text-sm leading-6 text-zinc-500">{parent ? 'Take the original thought somewhere new.' : 'Choose whether your thought stays standalone or leaves room for branches.'}</p>
-                <div className="mt-6">
+                <p className="riff-overline mt-8">Write into the thread</p>
+                <h1 className="riff-page-heading mt-2">{parent ? 'Add a Riffed branch' : 'Start a Riff'}</h1>
+                <p className="mt-2 text-sm leading-6 text-riff-muted">{parent ? 'Take the original thought somewhere new.' : 'Choose whether your thought stays standalone or leaves room for branches.'}</p>
+                <div className="mt-8">
                     <RiffComposer authorId={user.id} parent={parent} />
                 </div>
             </section>
