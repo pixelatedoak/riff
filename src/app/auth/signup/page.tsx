@@ -6,7 +6,7 @@ import { AuthShell } from '@/app/auth/auth-shell'
 import { createClient } from '@/lib/supabase/client'
 import { authErrorMessage } from '@/lib/auth-errors'
 
-const inputClassName = 'w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3.5 py-2.5 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20'
+const inputClassName = 'w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3.5 py-2.5 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-riff-accent focus:ring-2 focus:ring-riff-accent/20'
 
 export default function SignupPage() {
     const [email, setEmail] = useState('')
@@ -106,7 +106,7 @@ export default function SignupPage() {
                 footer={
                     <p className="text-center text-sm text-zinc-400">
                         Already confirmed?{' '}
-                        <Link href="/auth/login" className="font-medium text-amber-300 hover:text-amber-200">Sign in</Link>
+                        <Link href="/auth/login" className="font-medium text-riff-accent hover:text-riff-accent-hover">Sign in</Link>
                     </p>
                 }
             >
@@ -116,7 +116,7 @@ export default function SignupPage() {
                         type="button"
                         onClick={resendConfirmation}
                         disabled={resending}
-                        className="mt-3 rounded-lg px-3 py-2 text-sm font-medium text-amber-300 transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-wait disabled:opacity-60"
+                        className="mt-3 rounded-lg px-3 py-2 text-sm font-medium text-riff-accent transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-riff-accent disabled:cursor-wait disabled:opacity-60"
                     >
                         {resending ? 'Sending…' : 'Resend confirmation email'}
                     </button>
@@ -133,7 +133,7 @@ export default function SignupPage() {
             footer={
                 <p className="text-center text-sm text-zinc-400">
                     Already have an account?{' '}
-                    <Link href="/auth/login" className="font-medium text-amber-300 hover:text-amber-200">Sign in</Link>
+                    <Link href="/auth/login" className="font-medium text-riff-accent hover:text-riff-accent-hover">Sign in</Link>
                 </p>
             }
         >
@@ -146,7 +146,7 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="username" className="mb-1.5 block text-sm font-medium text-zinc-300">Username</label>
-                    <div className="flex items-center rounded-lg border border-white/10 bg-[#0c0c0f] focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20">
+                    <div className="flex items-center rounded-lg border border-riff-outline bg-riff-surface-low focus-within:border-riff-accent focus-within:ring-2 focus-within:ring-riff-accent/20">
                         <span aria-hidden="true" className="pl-3.5 text-sm text-zinc-500">@</span>
                         <input
                             id="username"
@@ -201,7 +201,7 @@ export default function SignupPage() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-wait disabled:opacity-60"
+                    className="w-full rounded-lg bg-riff-accent px-4 py-2.5 text-sm font-semibold text-riff-accent-ink transition hover:bg-riff-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-riff-accent disabled:cursor-wait disabled:opacity-60"
                 >
                     {loading ? 'Creating account…' : 'Create account'}
                 </button>

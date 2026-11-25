@@ -112,7 +112,7 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
                     {previewLinks.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
                             {previewLinks.slice(0, 3).map((url) => (
-                                <span key={url.toString()} className="rounded-full border border-amber-300/15 bg-amber-300/[0.06] px-2 py-1 text-[10px] text-amber-200/90">{url.hostname}</span>
+                                <span key={url.toString()} className="rounded-full border border-riff-accent/15 bg-riff-accent/[0.06] px-2 py-1 text-[10px] text-riff-accent-soft/90">{url.hostname}</span>
                             ))}
                             {previewLinks.length > 3 && <span className="px-1 py-1 text-[10px] text-zinc-500">+{previewLinks.length - 3}</span>}
                         </div>
@@ -310,6 +310,11 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                     <h1 className="riff-page-heading mt-1 text-3xl sm:text-4xl">Profile</h1>
                 </div>
 
+                <div className="flex items-center gap-2">
+                <Link href="/settings" className="inline-flex min-h-10 items-center gap-2 rounded-full border border-riff-outline bg-riff-surface px-3.5 text-sm font-medium text-riff-text transition hover:bg-riff-surface-2 hover:text-riff-accent">
+                    <Icon name="settings" size={16} />
+                    <span>Settings</span>
+                </Link>
                 <details className="group relative">
                     <summary aria-label="Profile options" title="Profile options" className="flex size-9 cursor-pointer list-none items-center justify-center rounded-full border border-white/10 text-zinc-400 transition hover:bg-white/5 hover:text-white [&::-webkit-details-marker]:hidden">
                         <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="size-[18px]">
@@ -322,12 +327,12 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                         <button type="button" onClick={copyProfileLink} disabled={!profile.username} className="w-full rounded-lg px-3 py-2 text-left text-sm text-zinc-300 hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:text-zinc-600">
                             {copied ? 'Link copied' : 'Copy profile link'}
                         </button>
-                        <Link href="/settings" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white"><Icon name="settings" size={15} />Account settings</Link>
                         {isModerator && <Link href="/moderation" className="block rounded-lg px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white">Moderation inbox</Link>}
                         <div className="my-1 border-t border-white/10" />
                         <SignOutButton />
                     </div>
                 </details>
+                </div>
             </div>
 
             <section aria-label="Profile details" className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface shadow-[0_24px_90px_rgba(0,0,0,0.2)]">
@@ -348,7 +353,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                             <div>
                                 <p className="text-sm font-medium text-zinc-200">Profile picture</p>
                                 <p className="text-xs text-zinc-500">JPG, PNG, or WebP · max 5 MB</p>
-                                <label htmlFor="avatar-upload" className={`mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-amber-300/15 bg-amber-300/[0.06] px-3 py-1.5 text-xs font-medium text-amber-200 transition hover:bg-amber-300/10 ${uploadingAvatar ? 'pointer-events-none opacity-50' : ''}`}>
+                                <label htmlFor="avatar-upload" className={`mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-riff-accent/15 bg-riff-accent/[0.06] px-3 py-1.5 text-xs font-medium text-riff-accent-soft transition hover:bg-riff-accent/10 ${uploadingAvatar ? 'pointer-events-none opacity-50' : ''}`}>
                                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-3.5" stroke="currentColor" strokeWidth="1.7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 006.5 20h11a1.5 1.5 0 001.5-1.5V14" /></svg>
                                     {uploadingAvatar ? 'Uploading…' : 'Upload image'}
                                 </label>
@@ -410,7 +415,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                         </div>
                         <div className="px-5 pb-6 sm:px-7 sm:pb-8">
                             <div className="-mt-11 flex flex-wrap items-end justify-between gap-4">
-                                <div className="relative z-10 flex size-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#121216] bg-[#24212e] text-2xl font-semibold text-amber-100 shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
+                                <div className="relative z-10 flex size-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#121216] bg-[#24212e] text-2xl font-semibold text-riff-accent-soft shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
                                     {avatarUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={avatarUrl.toString()} alt={`${displayName} profile picture`} className="size-full object-cover" />
@@ -456,7 +461,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                     </div>
                     <label className="shrink-0 text-xs text-zinc-500">
                         <span className="sr-only">Sort activity</span>
-                        <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)} className="rounded-lg border border-white/10 bg-[#141417] px-2.5 py-2 text-xs text-zinc-300 outline-none focus:border-amber-400">
+                        <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)} className="rounded-lg border border-white/10 bg-[#141417] px-2.5 py-2 text-xs text-zinc-300 outline-none focus:border-riff-accent">
                             <option>Newest first</option>
                             <option>Oldest first</option>
                         </select>

@@ -98,7 +98,7 @@ export function RiffSocialProvider({ riffIds, authorIds, parentIds = [], childre
         setFollowing: (authorId, followed) => setFollowingByAuthor((current) => ({ ...current, [authorId]: followed })),
     }), [viewerId, statsByRiff, followingByAuthor, originalById, loadError, loading])
 
-    return <SocialContext.Provider value={value}>{loadError && <p role="alert" className="mb-3 rounded-xl border border-amber-300/20 bg-amber-300/[0.05] px-4 py-3 text-sm text-amber-100">Social features could not load: {loadError}</p>}{children}</SocialContext.Provider>
+    return <SocialContext.Provider value={value}>{loadError && <p role="alert" className="mb-3 rounded-xl border border-riff-accent/20 bg-riff-accent/[0.05] px-4 py-3 text-sm text-riff-accent-soft">Social features could not load: {loadError}</p>}{children}</SocialContext.Provider>
 }
 
 export function useRiffSocial(riffId: string, authorId: string) {

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from 'react'
+import Script from 'next/script'
 import { ServiceWorkerRegister } from '@/app/service-worker-register'
 import { NavigationProgress } from '@/app/navigation-progress'
 import { getSiteUrl } from '@/lib/site-url'
@@ -46,8 +47,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body>
+        <Script id="riff-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('riff-theme');if(t==='midnight'||t==='plum'||t==='ember')document.documentElement.dataset.theme=t}catch{}" }} />
         <Suspense fallback={null}><NavigationProgress /></Suspense>
         {children}
         <ServiceWorkerRegister />

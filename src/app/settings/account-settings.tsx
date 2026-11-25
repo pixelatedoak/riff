@@ -80,7 +80,7 @@ export function AccountSettings({ email }: { email: string }) {
                     <label htmlFor="settings-password-confirm" className="block text-sm text-riff-muted">Confirm password<Input id="settings-password-confirm" type="password" minLength={8} autoComplete="new-password" required value={passwordConfirm} onChange={(event) => setPasswordConfirm(event.target.value)} className={fieldClassName} /></label>
                     <Button disabled={busy !== null}>{busy === 'password' ? 'Saving…' : 'Change password'}</Button>
                 </form>
-                <p className="mt-4 text-xs text-zinc-500">Forgot your current password? <Link href="/auth/forgot-password" className="text-amber-200 hover:text-amber-100">Send a reset link</Link></p>
+                <p className="mt-4 text-xs text-zinc-500">Forgot your current password? <Link href="/auth/forgot-password" className="text-riff-accent-soft hover:text-riff-accent-hover">Send a reset link</Link></p>
             </section>
 
             <section className="flex items-center justify-between gap-4 rounded-card border border-riff-outline bg-riff-surface p-5 sm:p-6">

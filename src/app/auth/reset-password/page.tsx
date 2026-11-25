@@ -44,12 +44,12 @@ export default function ResetPasswordPage() {
         window.setTimeout(() => { router.replace('/'); router.refresh() }, 800)
     }
 
-    return <AuthShell title="Choose a new password" description="Use at least eight characters." footer={<p className="text-center text-sm text-zinc-400"><Link href="/auth/login" className="font-medium text-amber-300 hover:text-amber-200">Back to sign in</Link></p>}>
+    return <AuthShell title="Choose a new password" description="Use at least eight characters." footer={<p className="text-center text-sm text-zinc-400"><Link href="/auth/login" className="font-medium text-riff-accent hover:text-riff-accent-hover">Back to sign in</Link></p>}>
         {error && <p role="alert" className="mb-4 rounded-lg border border-red-400/20 bg-red-400/10 px-3.5 py-2.5 text-sm text-red-300">{error}</p>}
         {message && <p role="status" className="mb-4 text-sm text-emerald-200">{message}</p>}
         {ready && <form onSubmit={submit} className="space-y-4">
-            <label htmlFor="new-password" className="block text-sm font-medium text-zinc-300">New password<input id="new-password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3.5 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-400" /></label>
-            <button disabled={busy} className="w-full rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-400 disabled:opacity-60">{busy ? 'Updating…' : 'Update password'}</button>
+            <label htmlFor="new-password" className="block text-sm font-medium text-zinc-300">New password<input id="new-password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1.5 w-full rounded-lg border border-white/10 bg-[#0c0c0f] px-3.5 py-2.5 text-sm text-zinc-100 outline-none focus:border-riff-accent" /></label>
+            <button disabled={busy} className="w-full rounded-lg bg-riff-accent px-4 py-2.5 text-sm font-semibold text-riff-accent-ink hover:bg-riff-accent-hover disabled:opacity-60">{busy ? 'Updating…' : 'Update password'}</button>
         </form>}
     </AuthShell>
 }

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { BottomNavigation } from '@/app/bottom-navigation'
 import { AccountSettings } from '@/app/settings/account-settings'
+import { ThemePicker } from '@/app/settings/theme-picker'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = { title: 'Account settings' }
@@ -21,7 +22,10 @@ export default async function SettingsPage() {
                     <h1 className="riff-page-heading mt-1">Settings</h1>
                     <p className="mt-2 text-sm text-riff-muted">Manage your sign-in details and account security.</p>
                 </div>
-                <AccountSettings email={user.email ?? ''} />
+                <div className="space-y-4">
+                    <ThemePicker />
+                    <AccountSettings email={user.email ?? ''} />
+                </div>
             </div>
             <BottomNavigation active="none" />
         </main>

@@ -26,7 +26,7 @@ export function RiffPostBody({ post, author, branchCount, compact, attachments }
                 </span>
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                     {author?.username ? (
-                        <Link href={`/u/${encodeURIComponent(author.username)}`} className="truncate text-sm font-medium text-zinc-200 hover:text-amber-200">{author.full_name || `@${author.username}`}</Link>
+                        <Link href={`/u/${encodeURIComponent(author.username)}`} className="truncate text-sm font-medium text-zinc-200 hover:text-riff-accent-hover">{author.full_name || `@${author.username}`}</Link>
                     ) : <span className="truncate text-sm font-medium text-zinc-200">{author?.full_name || `Riff user ${post.author_id.slice(0, 6)}`}</span>}
                     <RiffFollowButton authorId={post.author_id} />
                     <span className="text-zinc-700">·</span>

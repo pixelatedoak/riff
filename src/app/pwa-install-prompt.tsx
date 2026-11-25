@@ -62,14 +62,14 @@ export function PwaInstallPrompt() {
     if (!visible) return null
 
     return (
-        <aside aria-label="Install Riff" className="my-5 overflow-hidden rounded-2xl border border-amber-200/10 bg-[linear-gradient(110deg,rgba(167,139,250,0.09),rgba(17,17,22,0.82)_55%)] p-4 shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:hidden">
+        <aside aria-label="Install Riff" className="my-5 overflow-hidden rounded-2xl border border-riff-accent/10 bg-[linear-gradient(110deg,rgba(167,139,250,0.09),rgba(17,17,22,0.82)_55%)] p-4 shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:hidden">
             <div className="flex items-center gap-3">
                 <Image src="/icons/riff-192.png" width={44} height={44} alt="" className="size-11 rounded-xl" />
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-zinc-100">Keep Riff one tap away</p>
                     <p className="mt-0.5 text-xs text-zinc-500">Add it to your home screen.</p>
                 </div>
-                <button type="button" onClick={() => void install()} disabled={installing} className="shrink-0 rounded-xl bg-amber-300 px-3.5 py-2.5 text-xs font-bold text-[#17121f] transition hover:bg-amber-200 disabled:opacity-60">
+                <button type="button" onClick={() => void install()} disabled={installing} className="shrink-0 rounded-xl bg-riff-accent px-3.5 py-2.5 text-xs font-bold text-[#17121f] transition hover:bg-riff-accent-hover disabled:opacity-60">
                     {installing ? 'Opening…' : promptEvent ? 'Install' : 'How?'}
                 </button>
                 <button type="button" aria-label="Dismiss install suggestion" onClick={dismiss} className="-mr-1 -mt-5 self-start rounded-full p-1 text-lg leading-none text-zinc-600 hover:text-zinc-300">×</button>

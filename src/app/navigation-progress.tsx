@@ -46,7 +46,7 @@ function RouteProgress({ routeKey }: { routeKey: string }) {
 
     return (
         <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden bg-white/[0.04]">
-            <span className="block h-full w-[38%] rounded-r-full bg-amber-300 shadow-[0_0_12px_rgba(252,211,77,0.55)] motion-safe:animate-[riff-progress_1.1s_ease-in-out_infinite]" />
+            <span className="block h-full w-[38%] rounded-r-full bg-riff-accent shadow-[0_0_12px_rgba(252,211,77,0.55)] motion-safe:animate-[riff-progress_1.1s_ease-in-out_infinite]" />
             <span className="sr-only">Loading page</span>
         </div>
     )

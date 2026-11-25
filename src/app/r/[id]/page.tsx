@@ -91,7 +91,7 @@ export default async function RiffThreadPage({ params, searchParams }: RiffPageP
                     Back to feed
                 </Link>
                 <div className="mb-5 mt-8">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300">Riff thread</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-riff-accent">Riff thread</p>
                     <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">{root?.kind === 'black' ? 'Black Riff' : 'An open thought'}</h1>
                     <p className="mt-1 text-sm text-zinc-500">{totalBranchCount ?? 0} {(totalBranchCount ?? 0) === 1 ? 'branch' : 'branches'}</p>
                 </div>

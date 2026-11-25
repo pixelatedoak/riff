@@ -1,12 +1,12 @@
 import {
     ArrowLeft, ArrowUpRight, Bookmark, BookOpen, Check, ChevronRight, CircleHelp, Compass,
     CircleUserRound, FileText, Flag, Flame, GitFork, Heart, House, ImagePlus, Link2,
-    LockKeyhole, Menu, MessageCircle, MoreHorizontal, Plus, Repeat2, Trash2, X,
-    Rows3, Search, Settings2, Share2, ShieldAlert, Upload, UserRound,
+    LockKeyhole, Menu, MessageCircle, MoreHorizontal, Plus, Repeat2, Trash2, X, Bell,
+    Rows3, Search, Settings2, Share2, ShieldAlert, Upload, UserRound, Palette,
     type LucideIcon,
 } from 'lucide-react'
 
-export type IconName = 'branch' | 'lock' | 'feed' | 'explore' | 'profile' | 'plus' | 'heart' | 'comment' | 'repost' | 'bookmark' | 'share' | 'flag' | 'flame' | 'settings' | 'more' | 'menu' | 'close' | 'trash' | 'link' | 'upload' | 'check' | 'search' | 'home' | 'arrow-left' | 'arrow-up-right' | 'chevron-right' | 'file' | 'image' | 'help' | 'book' | 'moderation' | 'user'
+export type IconName = 'branch' | 'lock' | 'feed' | 'explore' | 'profile' | 'plus' | 'heart' | 'comment' | 'repost' | 'bookmark' | 'share' | 'flag' | 'flame' | 'settings' | 'more' | 'menu' | 'close' | 'trash' | 'link' | 'upload' | 'check' | 'search' | 'home' | 'arrow-left' | 'arrow-up-right' | 'chevron-right' | 'file' | 'image' | 'help' | 'book' | 'moderation' | 'user' | 'bell' | 'palette'
 
 const iconMap: Record<IconName, LucideIcon> = {
     branch: GitFork,
@@ -14,6 +14,8 @@ const iconMap: Record<IconName, LucideIcon> = {
     feed: Rows3,
     explore: Compass,
     profile: CircleUserRound,
+    bell: Bell,
+    palette: Palette,
     plus: Plus,
     heart: Heart,
     comment: MessageCircle,

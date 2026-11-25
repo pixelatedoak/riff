@@ -32,7 +32,10 @@ export function RiffFollowButton({ authorId }: { authorId: string }) {
                 : await supabase.from('riff_follows').insert({ follower_id: viewerId, followed_id: authorId })
             if (result.error?.code === '23505' && !following) setFollowing(true)
             else if (result.error) setMessage(result.error.message)
-            else setFollowing(!following)
+            else {
+                setFollowing(!following)
+                if (!following) window.dispatchEvent(new Event('riff:notifications-updated'))
+            }
         } catch {
             setMessage('Could not update the follow. Check your connection and try again.')
         } finally {
@@ -102,7 +105,10 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
             ? await query.delete().eq('riff_id', riffId).eq('user_id', viewerId)
             : await query.insert({ riff_id: riffId, user_id: viewerId })
         if (result.error) setMessage(result.error.message)
-        else updateStats((value) => ({ ...value, [key]: !active, ...(countKey ? { [countKey]: Math.max(0, value[countKey] + (active ? -1 : 1)) } : {}) }))
+        else {
+            updateStats((value) => ({ ...value, [key]: !active, ...(countKey ? { [countKey]: Math.max(0, value[countKey] + (active ? -1 : 1)) } : {}) }))
+            if (!active && table !== 'riff_saves') window.dispatchEvent(new Event('riff:notifications-updated'))
+        }
         setBusy(false)
     }
 
@@ -181,6 +187,7 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
             setComments((value) => [...value, { ...data, author_name: 'You' }])
             updateStats((value) => ({ ...value, comments: value.comments + 1 }))
             setCommentText('')
+            window.dispatchEvent(new Event('riff:notifications-updated'))
         }
         setBusy(false)
     }
@@ -244,7 +251,7 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
     const expandedStackHeight = expandedItemCount * buttonSize + (expandedItemCount - 1) * railGap + railInset
     const actionRailHeight = isOverflowExpanded ? Math.max(postCardHeight, expandedStackHeight) : postCardHeight
     const circleClass = `relative flex ${compactRail ? 'size-10' : 'size-11'} shrink-0 items-center justify-center rounded-full border border-riff-outline bg-riff-surface text-riff-muted shadow-lg transition hover:-translate-y-0.5 hover:bg-riff-surface-2 hover:text-riff-accent disabled:opacity-50`
-    const renderActionCircle = (item: ActionCircleItem) => <button key={item.key} type="button" title={`${item.label}${item.count ? ` · ${item.count}` : ''}`} aria-label={`${item.label}${item.count !== undefined ? `, ${item.count}` : ''}`} aria-pressed={item.pressed} disabled={item.disabled} onClick={item.onClick} className={`${circleClass} ${item.gold ? 'border-white/20 bg-white/[0.07] text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_4px_18px_rgba(214,189,130,0.12)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-px before:rounded-full before:bg-gradient-to-b before:from-white/20 before:via-white/[0.04] before:to-transparent before:content-[\'\'] hover:border-white/30 hover:bg-white/[0.12] hover:text-amber-100' : ''} ${item.pressed ? item.activeClass : ''}`}><Icon name={item.icon} size={compactRail ? 16 : 18} className={item.gold ? 'relative z-10 drop-shadow-[0_0_6px_rgba(251,191,36,0.28)]' : undefined} />{item.count !== undefined && item.count > 0 && <span className="absolute -right-1 -top-1 rounded-full border border-riff-outline bg-riff-surface-3 px-1 text-[9px] leading-4 text-riff-text">{item.count}</span>}</button>
+    const renderActionCircle = (item: ActionCircleItem) => <button key={item.key} type="button" title={`${item.label}${item.count ? ` · ${item.count}` : ''}`} aria-label={`${item.label}${item.count !== undefined ? `, ${item.count}` : ''}`} aria-pressed={item.pressed} disabled={item.disabled} onClick={item.onClick} className={`${circleClass} ${item.gold ? 'border-white/20 bg-white/[0.07] text-riff-accent-soft shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_4px_18px_rgba(214,189,130,0.12)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-px before:rounded-full before:bg-gradient-to-b before:from-white/20 before:via-white/[0.04] before:to-transparent before:content-[\'\'] hover:border-white/30 hover:bg-white/[0.12] hover:text-riff-accent-hover' : ''} ${item.pressed ? item.activeClass : ''}`}><Icon name={item.icon} size={compactRail ? 16 : 18} className={item.gold ? 'relative z-10 drop-shadow-[0_0_6px_rgba(251,191,36,0.28)]' : undefined} />{item.count !== undefined && item.count > 0 && <span className="absolute -right-1 -top-1 rounded-full border border-riff-outline bg-riff-surface-3 px-1 text-[9px] leading-4 text-riff-text">{item.count}</span>}</button>
 
     useEffect(() => {
         const layout = actionRailRef.current?.closest('[data-riff-post-layout]')
@@ -282,7 +289,7 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
                 <div className="col-start-1 row-start-3 mt-3 min-w-0 lg:col-start-2 lg:col-span-2 lg:row-start-2">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-500">
                 </div>
-                {message && <p role="status" className="mt-2 text-xs text-amber-200">{message}</p>}
+                {message && <p role="status" className="mt-2 text-xs text-riff-accent-soft">{message}</p>}
                 {commentsEnabled && commentsOpen && <section id={`comments-${riffId}`} aria-label="Comments" className="mt-4 rounded-card border border-riff-outline bg-riff-surface-low p-4 sm:p-5">
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div><h3 className="text-sm font-semibold text-riff-text">Comments</h3><p className="mt-0.5 text-xs text-riff-muted">{stats.comments} {stats.comments === 1 ? 'comment' : 'comments'}</p></div>
@@ -295,11 +302,11 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
             </> : <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-500">
                 {viewerId && viewerId !== authorId && <button type="button" aria-label="Report post" title="Report post" onClick={() => { setReportTarget({ type: 'riff', id: riffId }); setReportReason(''); setReportDetails(''); setMessage(''); setPanel('report') }} className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-riff-outline bg-riff-surface text-riff-muted shadow-lg transition hover:bg-riff-surface-2 hover:text-riff-accent lg:absolute lg:-left-12 lg:top-0"><Icon name="flag" size={15} /></button>}
                 <button type="button" disabled={busy || loading} onClick={() => void toggle('riff_likes', stats.liked, 'liked', 'likes')} className={`inline-flex items-center gap-1.5 hover:text-rose-200 disabled:opacity-50 ${stats.liked ? 'text-rose-200' : ''}`}><Icon name="heart" size={15} />{stats.likes || 'Like'}</button>
-                {commentsEnabled && <button type="button" disabled={loading} aria-expanded={commentsOpen} aria-controls={`comments-${riffId}`} onClick={toggleComments} className="inline-flex items-center gap-1.5 hover:text-amber-200 disabled:opacity-50"><Icon name="comment" size={15} />{commentsOpen ? 'Hide comments' : 'Comment'}{stats.comments ? ` · ${stats.comments}` : ''}</button>}
-                <button type="button" disabled={busy || loading} onClick={() => void toggle('riff_reposts', stats.reposted, 'reposted', 'reposts')} className={`inline-flex items-center gap-1.5 hover:text-amber-200 disabled:opacity-50 ${stats.reposted ? 'text-amber-200' : ''}`}><Icon name="repost" size={15} />Repost{stats.reposts ? ` · ${stats.reposts}` : ''}</button>
-                <button type="button" disabled={busy || loading} onClick={() => void toggle('riff_saves', stats.saved, 'saved')} className={`inline-flex items-center gap-1.5 hover:text-amber-200 disabled:opacity-50 ${stats.saved ? 'text-amber-200' : ''}`}><Icon name="bookmark" size={15} />{stats.saved ? 'Saved' : 'Save'}</button>
-                <button type="button" onClick={() => void share()} className="inline-flex items-center gap-1.5 hover:text-amber-200"><Icon name="share" size={15} />Share</button>
-                {stats.branches > 0 && <Link href={`/r/${riffId}`} className="hover:text-amber-200">{stats.branches} {stats.branches === 1 ? 'branch' : 'branches'}</Link>}
+                {commentsEnabled && <button type="button" disabled={loading} aria-expanded={commentsOpen} aria-controls={`comments-${riffId}`} onClick={toggleComments} className="inline-flex items-center gap-1.5 hover:text-riff-accent-hover disabled:opacity-50"><Icon name="comment" size={15} />{commentsOpen ? 'Hide comments' : 'Comment'}{stats.comments ? ` · ${stats.comments}` : ''}</button>}
+                <button type="button" disabled={busy || loading} onClick={() => void toggle('riff_reposts', stats.reposted, 'reposted', 'reposts')} className={`inline-flex items-center gap-1.5 hover:text-riff-accent-hover disabled:opacity-50 ${stats.reposted ? 'text-riff-accent-soft' : ''}`}><Icon name="repost" size={15} />Repost{stats.reposts ? ` · ${stats.reposts}` : ''}</button>
+                <button type="button" disabled={busy || loading} onClick={() => void toggle('riff_saves', stats.saved, 'saved')} className={`inline-flex items-center gap-1.5 hover:text-riff-accent-hover disabled:opacity-50 ${stats.saved ? 'text-riff-accent-soft' : ''}`}><Icon name="bookmark" size={15} />{stats.saved ? 'Saved' : 'Save'}</button>
+                <button type="button" onClick={() => void share()} className="inline-flex items-center gap-1.5 hover:text-riff-accent-hover"><Icon name="share" size={15} />Share</button>
+                {stats.branches > 0 && <Link href={`/r/${riffId}`} className="hover:text-riff-accent-hover">{stats.branches} {stats.branches === 1 ? 'branch' : 'branches'}</Link>}
                 {viewerId === authorId && <details className="relative ml-auto">
                     <summary aria-label="More post actions" className="inline-flex size-9 cursor-pointer list-none items-center justify-center rounded-full border border-riff-outline text-riff-muted hover:bg-riff-surface-2 hover:text-riff-text"><Icon name="menu" size={16} /></summary>
                     <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-riff-outline bg-riff-surface-2 p-1.5 shadow-xl">
@@ -308,7 +315,7 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
                     </div>
                 </details>}
             </div>}
-            {!floating && message && <p role="status" className="mt-2 text-xs text-amber-200">{message}</p>}
+            {!floating && message && <p role="status" className="mt-2 text-xs text-riff-accent-soft">{message}</p>}
 
             {!floating && commentsEnabled && commentsOpen && <section id={`comments-${riffId}`} aria-label="Comments" className="mt-4 rounded-card border border-riff-outline bg-riff-surface-low p-4 sm:p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
@@ -333,8 +340,8 @@ export function RiffSocialActions({ riffId, authorId, content, kind, commentsEna
                     </form> : <form onSubmit={saveSettings} className="space-y-4">
                         <label htmlFor="edit-riff-content" className="mb-2 block text-sm text-riff-muted">Post text</label>
                         <MarkdownEditor id="edit-riff-content" value={editedText} onChange={setEditedText} maxLength={1000} rows={5} placeholder="Update your post" />
-                        <label className="flex items-center gap-3 text-sm text-zinc-300"><input type="checkbox" checked={nextCommentsEnabled} onChange={(event) => setNextCommentsEnabled(event.target.checked)} className="accent-amber-300" /> Allow comments</label>
-                        <label className="flex items-center gap-3 text-sm text-zinc-300"><input type="checkbox" checked={nextAllowBranches} onChange={(event) => setNextAllowBranches(event.target.checked)} disabled={kind === 'black'} className="accent-amber-300" /> Allow branches{kind === 'black' && <span className="text-xs text-zinc-500">· Black Riffs are standalone</span>}</label>
+                        <label className="flex items-center gap-3 text-sm text-zinc-300"><input type="checkbox" checked={nextCommentsEnabled} onChange={(event) => setNextCommentsEnabled(event.target.checked)} className="accent-riff-accent" /> Allow comments</label>
+                        <label className="flex items-center gap-3 text-sm text-zinc-300"><input type="checkbox" checked={nextAllowBranches} onChange={(event) => setNextAllowBranches(event.target.checked)} disabled={kind === 'black'} className="accent-riff-accent" /> Allow branches{kind === 'black' && <span className="text-xs text-zinc-500">· Black Riffs are standalone</span>}</label>
                         {message && <p className="text-xs text-rose-200">{message}</p>}
                         <Button disabled={busy || !editedText.trim()}><Icon name="check" size={16} />Save settings</Button>
                     </form>}
