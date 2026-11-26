@@ -14,7 +14,7 @@ type GiphyGif = {
     }
 }
 
-export function GifPicker({ disabled, onAddGif, apiKey, keyName, buttonLabel = 'Add GIF', placement = 'bottom' }: { disabled: boolean; onAddGif: (gif: { id: string; previewUrl: string; pageUrl: string }) => boolean; apiKey?: string; keyName: string; buttonLabel?: string; placement?: 'top' | 'bottom' }) {
+export function GifPicker({ disabled, onAddGif, apiKey, keyName, buttonLabel = 'Add GIF', placement = 'bottom', compact = false }: { disabled: boolean; onAddGif: (gif: { id: string; previewUrl: string; pageUrl: string }) => boolean; apiKey?: string; keyName: string; buttonLabel?: string; placement?: 'top' | 'bottom'; compact?: boolean }) {
     const [open, setOpen] = useState(false)
     const [query, setQuery] = useState('')
     const [gifs, setGifs] = useState<GiphyGif[]>([])
@@ -64,8 +64,8 @@ export function GifPicker({ disabled, onAddGif, apiKey, keyName, buttonLabel = '
     }
 
     return <div className="relative">
-        <button type="button" disabled={disabled} aria-expanded={open} onClick={() => { setOpen((value) => !value); setError('') }} className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full border border-riff-outline px-3.5 text-xs font-semibold text-riff-text transition hover:bg-riff-surface-2 disabled:pointer-events-none disabled:opacity-45">
-            <span className="rounded border border-current/50 px-1 py-0.5 text-[9px] font-black leading-none">GIF</span>{buttonLabel}
+        <button type="button" disabled={disabled} aria-expanded={open} aria-label={compact ? 'Add a GIF' : undefined} title={compact ? 'GIF' : undefined} onClick={() => { setOpen((value) => !value); setError('') }} className={`inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-riff-outline text-xs font-semibold text-riff-text transition hover:bg-riff-surface-2 disabled:pointer-events-none disabled:opacity-45 ${compact ? 'size-10 p-0' : 'px-3.5'}`}>
+            {compact ? <Icon name="gif" size={17} /> : <><span className="rounded border border-current/50 px-1 py-0.5 text-[9px] font-black leading-none">GIF</span>{buttonLabel}</>}
         </button>
         {open && <section aria-label="Choose a GIF from GIPHY" className={`absolute right-0 z-30 w-[min(90vw,26rem)] overflow-hidden rounded-2xl border border-riff-outline bg-riff-surface shadow-2xl ${placement === 'top' ? 'bottom-12' : 'top-12'}`}>
             <div className="flex items-center gap-2 border-b border-riff-outline p-3">

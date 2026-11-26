@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from 'react'
-import Script from 'next/script'
 import { ServiceWorkerRegister } from '@/app/service-worker-register'
 import { NavigationProgress } from '@/app/navigation-progress'
 import { getSiteUrl } from '@/lib/site-url'
@@ -49,7 +48,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body>
-        <Script src="/riff-theme-init.js" strategy="beforeInteractive" />
         <Suspense fallback={null}><NavigationProgress /></Suspense>
         {children}
         <ServiceWorkerRegister />

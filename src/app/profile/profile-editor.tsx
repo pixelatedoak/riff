@@ -107,7 +107,7 @@ function ProfilePreview({ profile }: { profile: ProfileDraft }) {
                     <h3 className="mt-3 truncate text-base font-semibold text-white">{previewName}</h3>
                     <p className="mt-0.5 truncate text-xs text-zinc-500">{previewUsername ? `@${previewUsername}` : '@yourname'}</p>
                     {profile.pronouns.trim() && <p className="mt-3 text-xs text-zinc-400">{profile.pronouns.trim()}</p>}
-                    <p className="mt-3 line-clamp-4 min-h-10 whitespace-pre-wrap text-xs leading-5 text-zinc-400">
+                    <p className="mt-3 line-clamp-4 min-h-10 whitespace-pre-wrap [overflow-wrap:anywhere] text-xs leading-5 text-zinc-400">
                         {profile.description.trim() || 'Your description will appear here.'}
                     </p>
                     {previewLinks.length > 0 && (
@@ -340,8 +340,8 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
 
             <section aria-label="Profile details" className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface shadow-[0_24px_90px_rgba(0,0,0,0.2)]">
                 {editing ? (
-                    <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
-                    <form onSubmit={saveProfile} className="space-y-5">
+                    <div className="grid min-w-0 gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
+                    <form onSubmit={saveProfile} className="min-w-0 space-y-5">
                         <div className="mb-1">
                             <h2 className="text-base font-semibold text-white">Edit your details</h2>
                             <p className="mt-1 text-xs leading-5 text-zinc-500">Make your corner of Riff feel like yours.</p>
@@ -385,7 +385,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
 
                         <label className="block text-sm text-zinc-300">
                             Description
-                            <Textarea value={draft.description} onChange={(event) => updateDraft('description', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-24 resize-y`} placeholder="A little about you" maxLength={280} />
+                            <Textarea value={draft.description} onChange={(event) => updateDraft('description', event.target.value)} className={`${fieldClassName} mt-1.5 min-h-24 max-w-full resize-y`} placeholder="A little about you" maxLength={280} />
                             <span className="mt-1 block text-right text-xs text-zinc-600">{draft.description.length}/280</span>
                         </label>
 
@@ -435,7 +435,7 @@ export function ProfileEditor({ initialProfile, loadError, initialPosts, authors
                                 <p className="mt-1 text-sm text-zinc-500">{profile.username ? `@${profile.username}` : 'Choose a username'}</p>
                                 <FollowCounts profileId={profile.id} username={profile.username} followers={followerCount} following={followingCount} />
                                 {profile.pronouns && <p className="mt-4 text-sm text-zinc-400">{profile.pronouns}</p>}
-                                {profile.description ? <p className="mt-3 max-w-2xl whitespace-pre-wrap text-sm leading-6 text-zinc-300">{profile.description}</p> : <p className="mt-3 text-sm text-zinc-600">Add a line or two about yourself.</p>}
+                                {profile.description ? <p className="mt-3 max-w-2xl whitespace-pre-wrap [overflow-wrap:anywhere] text-sm leading-6 text-zinc-300">{profile.description}</p> : <p className="mt-3 text-sm text-zinc-600">Add a line or two about yourself.</p>}
                                 {validLinks.length > 0 && (
                                     <ul className="mt-5 flex flex-wrap gap-2">
                                         {validLinks.map(({ link, url }) => (

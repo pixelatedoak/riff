@@ -20,7 +20,7 @@ export function BottomNavigation({ active }: BottomNavigationProps) {
     const items = [
         { href: '/', label: 'Feed', icon: 'feed' as const, selected: active === 'feed' },
         { href: '/explore', label: 'Explore', icon: 'explore' as const, selected: active === 'explore' },
-        { href: '/create', label: 'Create a Riff', icon: 'plus' as const, selected: false, create: true },
+        { href: '/create', label: 'Create a Riff', icon: 'plus' as const, selected: false },
         { href: '/profile', label: 'Profile', icon: 'profile' as const, selected: active === 'profile' },
     ]
 
@@ -64,8 +64,8 @@ export function BottomNavigation({ active }: BottomNavigationProps) {
     return (
         <nav ref={navRef} aria-label="Main navigation" aria-hidden={!visible} onFocusCapture={() => setVisible(true)} className={`fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.65rem)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'}`}>
         <div className="mx-auto flex w-fit items-center gap-1 rounded-full border border-riff-outline bg-riff-surface/95 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.42)] backdrop-blur-xl">
-                {items.slice(0, 3).map((item) => <Link key={item.href} href={item.href} aria-label={item.label} aria-current={item.selected ? 'page' : undefined} title={item.label} className={`flex size-10 items-center justify-center rounded-full ${item.create ? 'bg-riff-accent text-riff-accent-ink transition hover:bg-riff-accent-hover' : item.selected ? activeClass : idleClass}`}>
-                    <Icon name={item.icon} size={item.create ? 19 : 18} strokeWidth={item.create ? 2 : 1.8} />
+                {items.slice(0, 3).map((item) => <Link key={item.href} href={item.href} aria-label={item.label} aria-current={item.selected ? 'page' : undefined} title={item.label} className={`flex size-10 items-center justify-center rounded-full ${item.selected ? activeClass : idleClass}`}>
+                    <Icon name={item.icon} size={18} strokeWidth={1.8} />
                 </Link>)}
                 <MessageNavItem selected={active === 'messages'} />
                 <NotificationNavItem selected={active === 'notifications'} />

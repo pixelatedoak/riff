@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button'
 import { RIFF_MEDIA_FILTERS, RIFF_STICKERS, type RiffMediaFilter, type RiffStickerId } from '@/lib/riffs/media-editing'
 import { StickerArtwork } from '@/components/sticker-artwork'
 import { GifPicker } from '@/components/gif-picker'
+import { CustomStickerArtwork } from '@/components/custom-sticker-artwork'
+import { useUserStickers } from '@/components/sticker-picker'
+import { FUNNY_STICKERS, type StickerDesign } from '@/lib/riffs/stickers'
 
 type ParentRiff = {
     id: string
@@ -23,6 +26,7 @@ type ParentRiff = {
 type LayerPosition = { id: string; x: number; y: number; scale: number; rotation: number }
 type CanvasLayer =
     | (LayerPosition & { type: 'sticker'; stickerId: RiffStickerId })
+    | (LayerPosition & { type: 'art-sticker'; sticker: StickerDesign })
     | (LayerPosition & { type: 'text'; text: string; style: 'plain' | 'label' })
 type PendingMedia = { id: string; file: File; previewUrl: string; mediaFilter: RiffMediaFilter; layers: CanvasLayer[]; giphyId: string | null; giphyPageUrl: string | null }
 
@@ -52,6 +56,7 @@ async function renderPhotoEdits(item: PendingMedia) {
 
         for (const layer of item.layers) {
             if (layer.type === 'sticker') drawSticker(context, layer.stickerId, layer.x * canvas.width, layer.y * canvas.height, Math.min(canvas.width, canvas.height) * 0.0016 * layer.scale, layer.rotation)
+            else if (layer.type === 'art-sticker') drawArtSticker(context, layer.sticker, layer.x * canvas.width, layer.y * canvas.height, Math.min(canvas.width, canvas.height) * 0.0012 * layer.scale, layer.rotation)
             else drawTextLayer(context, layer, canvas.width, canvas.height)
         }
 
@@ -186,7 +191,31 @@ function drawTextLayer(context: CanvasRenderingContext2D, layer: Extract<CanvasL
     context.restore()
 }
 
-function MediaStudio({ files, selectedId, onSelect, onUpdate, onRemove, onMove }: {
+function drawArtSticker(context: CanvasRenderingContext2D, sticker: StickerDesign, centerX: number, centerY: number, unit: number, rotation: number) {
+    context.save()
+    context.translate(centerX, centerY)
+    context.rotate(rotation * Math.PI / 180)
+    context.scale(unit, unit)
+    context.shadowColor = 'rgba(0,0,0,0.3)'
+    context.shadowBlur = 9
+    context.beginPath()
+    context.roundRect(-92, -40, 184, 80, 16)
+    context.fillStyle = sticker.background
+    context.fill()
+    context.strokeStyle = '#ffffff'
+    context.lineWidth = 5
+    context.stroke()
+    context.shadowBlur = 0
+    context.fillStyle = sticker.foreground
+    context.font = `900 ${sticker.text.length > 12 ? 17 : 22}px system-ui, sans-serif`
+    context.textAlign = 'center'
+    context.textBaseline = 'middle'
+    context.fillText(sticker.text.toUpperCase().slice(0, 18), 0, 1, 170)
+    context.restore()
+}
+
+function MediaStudio({ userId, files, selectedId, onSelect, onUpdate, onRemove, onMove }: {
+    userId: string
     files: PendingMedia[]
     selectedId: string | null
     onSelect: (id: string) => void
@@ -198,6 +227,7 @@ function MediaStudio({ files, selectedId, onSelect, onUpdate, onRemove, onMove }
     const [activeTool, setActiveTool] = useState<'filters' | 'stickers' | 'text' | 'layers'>('filters')
     const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null)
     const [newText, setNewText] = useState('')
+    const { stickers: userStickers } = useUserStickers(userId)
     const item = files.find((file) => file.id === selectedId) ?? files[0]
     if (!item) return null
     const index = files.findIndex((file) => file.id === item.id)
@@ -219,6 +249,12 @@ function MediaStudio({ files, selectedId, onSelect, onUpdate, onRemove, onMove }
 
     function addSticker(stickerId: RiffStickerId) {
         const layer: CanvasLayer = { id: crypto.randomUUID(), type: 'sticker', stickerId, x: 0.5 + (item.layers.length % 3 - 1) * 0.08, y: 0.5 + (item.layers.length % 3 - 1) * 0.08, scale: 1, rotation: 0 }
+        onUpdate(item.id, { layers: [...item.layers, layer] })
+        setSelectedLayerId(layer.id)
+    }
+
+    function addArtSticker(sticker: StickerDesign) {
+        const layer: CanvasLayer = { id: crypto.randomUUID(), type: 'art-sticker', sticker, x: 0.5 + (item.layers.length % 3 - 1) * 0.08, y: 0.5 + (item.layers.length % 3 - 1) * 0.08, scale: 1, rotation: 0 }
         onUpdate(item.id, { layers: [...item.layers, layer] })
         setSelectedLayerId(layer.id)
     }
@@ -247,7 +283,13 @@ function MediaStudio({ files, selectedId, onSelect, onUpdate, onRemove, onMove }
                 {isPhoto && item.previewUrl ? <div ref={stageRef} className="relative inline-block max-h-[52dvh] max-w-full select-none">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.previewUrl} alt={`Editing ${item.file.name}`} draggable={false} className="block max-h-[52dvh] max-w-full object-contain" style={{ filter }} />
-                    {item.layers.map((layer) => <button key={layer.id} type="button" aria-label={`Move ${layer.type === 'sticker' ? RIFF_STICKERS.find((sticker) => sticker.id === layer.stickerId)?.label ?? 'sticker' : layer.text}`} onClick={() => setSelectedLayerId(layer.id)} onPointerDown={(event) => { setSelectedLayerId(layer.id); event.currentTarget.setPointerCapture(event.pointerId); moveLayer(layer, event) }} onPointerMove={(event) => moveLayer(layer, event)} style={{ left: `${layer.x * 100}%`, top: `${layer.y * 100}%`, transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) scale(${layer.scale})` }} className={`absolute touch-none cursor-move select-none focus-visible:outline-2 focus-visible:outline-riff-accent ${selectedLayerId === layer.id ? 'ring-1 ring-white/70 ring-offset-4 ring-offset-transparent' : ''} ${layer.type === 'sticker' ? (layer.stickerId === 'idea' || layer.stickerId === 'riff' ? 'w-36' : 'w-24') : `whitespace-nowrap px-3 py-1.5 text-lg font-extrabold drop-shadow-[0_2px_5px_rgba(0,0,0,0.75)] ${layer.style === 'label' ? 'rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-sm' : 'text-white'}`}`}>{layer.type === 'sticker' ? <StickerArtwork id={layer.stickerId} className="h-auto w-full overflow-visible" /> : layer.text}</button>)}
+                    {item.layers.map((layer) => {
+                        const stickerLabel = layer.type === 'sticker' ? RIFF_STICKERS.find((sticker) => sticker.id === layer.stickerId)?.label ?? 'sticker' : layer.type === 'art-sticker' ? layer.sticker.label : layer.text
+                        const stickerLayer = layer.type !== 'text'
+                        return <button key={layer.id} type="button" aria-label={`Move ${stickerLabel}`} onClick={() => setSelectedLayerId(layer.id)} onPointerDown={(event) => { setSelectedLayerId(layer.id); event.currentTarget.setPointerCapture(event.pointerId); moveLayer(layer, event) }} onPointerMove={(event) => moveLayer(layer, event)} style={{ left: `${layer.x * 100}%`, top: `${layer.y * 100}%`, transform: `translate(-50%, -50%) rotate(${layer.rotation}deg) scale(${layer.scale})` }} className={`absolute touch-none cursor-move select-none focus-visible:outline-2 focus-visible:outline-riff-accent ${selectedLayerId === layer.id ? 'ring-1 ring-white/70 ring-offset-4 ring-offset-transparent' : ''} ${stickerLayer ? 'w-36' : `whitespace-nowrap px-3 py-1.5 text-lg font-extrabold drop-shadow-[0_2px_5px_rgba(0,0,0,0.75)] ${layer.type === 'text' && layer.style === 'label' ? 'rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-sm' : 'text-white'}`}`}>
+                            {layer.type === 'sticker' ? <StickerArtwork id={layer.stickerId} className="h-auto w-full overflow-visible" /> : layer.type === 'art-sticker' ? <CustomStickerArtwork sticker={layer.sticker} className="h-auto w-full overflow-visible" /> : layer.text}
+                        </button>
+                    })}
                 </div> : isImage && item.previewUrl ? <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.previewUrl} alt={`Preview of ${item.file.name}`} className="max-h-[52dvh] max-w-full object-contain" />
@@ -286,16 +328,20 @@ function MediaStudio({ files, selectedId, onSelect, onUpdate, onRemove, onMove }
                             <span className="block truncate px-2 py-1.5 text-[10px] font-medium text-riff-muted">{option.label}</span>
                         </button>)}</div>
                     </fieldset>}
-                    {isPhoto && activeTool === 'stickers' && <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                    {isPhoto && activeTool === 'stickers' && <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
                         {RIFF_STICKERS.map((sticker) => <button key={sticker.id} type="button" aria-label={`Add ${sticker.label} sticker`} onClick={() => addSticker(sticker.id)} className="group flex min-h-[5.5rem] flex-col items-center justify-center gap-1 rounded-xl border border-riff-outline bg-riff-surface-low px-1.5 py-2 transition hover:border-riff-muted hover:bg-riff-surface-2">
                             <span className="flex h-10 w-full items-center justify-center"><StickerArtwork id={sticker.id} className={`${sticker.id === 'idea' || sticker.id === 'riff' ? 'w-14' : 'w-9'} h-auto transition-transform group-hover:scale-110`} /></span>
                             <span className="text-[10px] font-medium text-riff-muted">{sticker.label}</span>
+                        </button>)}
+                        {[...FUNNY_STICKERS, ...userStickers].map((sticker) => <button key={sticker.id} type="button" aria-label={`Add ${sticker.label} sticker`} onClick={() => addArtSticker(sticker)} className="group flex min-h-[5.5rem] flex-col items-center justify-center gap-1 rounded-xl border border-riff-outline bg-riff-surface-low px-1.5 py-2 transition hover:border-riff-muted hover:bg-riff-surface-2">
+                            <span className="flex h-10 w-full items-center justify-center"><CustomStickerArtwork sticker={sticker} className="h-auto w-full transition-transform group-hover:scale-105" /></span>
+                            <span className="max-w-full truncate text-[10px] font-medium text-riff-muted">{sticker.label}</span>
                         </button>)}
                     </div>}
                     {isPhoto && activeTool === 'text' && <div className="flex gap-2"><input value={newText} maxLength={80} onChange={(event) => setNewText(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') addText() }} placeholder="Write something on your image" className="min-w-0 flex-1 rounded-xl border border-riff-outline bg-riff-surface-low px-3 py-2.5 text-sm text-riff-text outline-none focus:border-riff-accent" /><Button type="button" variant="secondary" size="compact" disabled={!newText.trim()} onClick={addText}><Icon name="plus" size={14} />Add text</Button></div>}
                     {isPhoto && activeTool === 'layers' && <div className="space-y-2">
                         {item.layers.length === 0 && <p className="text-xs text-riff-muted">Add text and stickers to build up your image. Drag anything on the canvas to place it.</p>}
-                        {[...item.layers].reverse().map((layer) => <div key={layer.id} className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 ${activeLayer?.id === layer.id ? 'border-riff-accent/50 bg-riff-accent/[0.06]' : 'border-riff-outline bg-riff-surface-low'}`}><button type="button" onClick={() => setSelectedLayerId(layer.id)} className="min-w-0 flex-1 truncate text-left text-xs text-riff-text">{layer.type === 'sticker' ? `Sticker · ${RIFF_STICKERS.find((sticker) => sticker.id === layer.stickerId)?.label}` : `Text · ${layer.text}`}</button><button type="button" aria-label="Move layer forward" onClick={() => reorderLayer(layer.id, 1)} className="rounded-md p-1.5 text-xs text-riff-muted hover:text-riff-text">↑</button><button type="button" aria-label="Move layer backward" onClick={() => reorderLayer(layer.id, -1)} className="rounded-md p-1.5 text-xs text-riff-muted hover:text-riff-text">↓</button><button type="button" aria-label="Remove layer" onClick={() => { onUpdate(item.id, { layers: item.layers.filter((entry) => entry.id !== layer.id) }); if (selectedLayerId === layer.id) setSelectedLayerId(null) }} className="rounded-md p-1.5 text-riff-muted hover:text-rose-300"><Icon name="trash" size={14} /></button></div>)}
+                        {[...item.layers].reverse().map((layer) => <div key={layer.id} className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 ${activeLayer?.id === layer.id ? 'border-riff-accent/50 bg-riff-accent/[0.06]' : 'border-riff-outline bg-riff-surface-low'}`}><button type="button" onClick={() => setSelectedLayerId(layer.id)} className="min-w-0 flex-1 truncate text-left text-xs text-riff-text">{layer.type === 'sticker' ? `Sticker · ${RIFF_STICKERS.find((sticker) => sticker.id === layer.stickerId)?.label}` : layer.type === 'art-sticker' ? `Sticker · ${layer.sticker.label}` : `Text · ${layer.text}`}</button><button type="button" aria-label="Move layer forward" onClick={() => reorderLayer(layer.id, 1)} className="rounded-md p-1.5 text-xs text-riff-muted hover:text-riff-text">↑</button><button type="button" aria-label="Move layer backward" onClick={() => reorderLayer(layer.id, -1)} className="rounded-md p-1.5 text-xs text-riff-muted hover:text-riff-text">↓</button><button type="button" aria-label="Remove layer" onClick={() => { onUpdate(item.id, { layers: item.layers.filter((entry) => entry.id !== layer.id) }); if (selectedLayerId === layer.id) setSelectedLayerId(null) }} className="rounded-md p-1.5 text-riff-muted hover:text-rose-300"><Icon name="trash" size={14} /></button></div>)}
                         {activeLayer && <div className="grid gap-3 border-t border-riff-outline pt-3 sm:grid-cols-2"><label className="space-y-1 text-[11px] text-riff-muted"><span>Size</span><input aria-label="Layer size" type="range" min="0.4" max="2.5" step="0.05" value={activeLayer.scale} onChange={(event) => updateLayer(activeLayer.id, { scale: Number(event.target.value) })} className="w-full accent-riff-accent" /></label><label className="space-y-1 text-[11px] text-riff-muted"><span>Rotate</span><input aria-label="Layer rotation" type="range" min="-180" max="180" step="1" value={activeLayer.rotation} onChange={(event) => updateLayer(activeLayer.id, { rotation: Number(event.target.value) })} className="w-full accent-riff-accent" /></label>{activeLayer.type === 'text' && <div className="flex gap-2 sm:col-span-2"><input aria-label="Edit overlay text" value={activeLayer.text} maxLength={80} onChange={(event) => updateLayer(activeLayer.id, { text: event.target.value })} className="min-w-0 flex-1 rounded-lg border border-riff-outline bg-riff-surface px-3 py-2 text-xs text-riff-text" /><button type="button" onClick={() => updateLayer(activeLayer.id, { style: activeLayer.style === 'label' ? 'plain' : 'label' })} className="rounded-lg border border-riff-outline px-3 text-xs text-riff-muted">{activeLayer.style === 'label' ? 'Label style' : 'Plain style'}</button></div>}</div>}
                     </div>}
                     {activeTool === 'layers' && !isPhoto && <div className="flex flex-wrap items-center justify-between gap-3">
@@ -492,7 +538,7 @@ export function RiffComposer({ authorId, parent }: { authorId: string; parent: P
                         <div className="flex shrink-0 items-center gap-2"><label htmlFor="riff-files" className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border border-riff-outline px-3.5 text-xs font-semibold text-riff-text transition hover:bg-riff-surface-2 ${files.length >= maxFiles || saving ? 'pointer-events-none opacity-45' : ''}`}><Icon name="plus" size={14} />Choose files</label><GifPicker apiKey={process.env.NEXT_PUBLIC_GIPHY_API_KEY} keyName="NEXT_PUBLIC_GIPHY_API_KEY" disabled={saving || files.length >= maxFiles} onAddGif={addGiphyGif} /></div>
                         <input id="riff-files" type="file" multiple disabled={saving || files.length >= maxFiles} onChange={(event) => { addFiles(Array.from(event.currentTarget.files ?? [])); event.currentTarget.value = '' }} className="sr-only" />
                     </div>
-                    {files.length > 0 ? <MediaStudio files={files} selectedId={selectedMediaId} onSelect={setSelectedMediaId} onUpdate={updateFile} onRemove={removeFile} onMove={moveFile} /> : <div className={`flex min-h-20 items-center gap-3 rounded-xl px-4 py-3 transition ${draggingFiles ? 'bg-riff-accent/[0.08]' : 'bg-riff-surface-low/60'}`}><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-riff-surface-2 text-riff-muted"><Icon name="upload" size={16} /></span><span className="text-sm text-riff-muted">{draggingFiles ? 'Drop to attach' : 'Or drag files here'}</span><span className="ml-auto hidden text-xs text-riff-faint sm:inline">Files are visible to people who can see your post.</span></div>}
+                    {files.length > 0 ? <MediaStudio userId={authorId} files={files} selectedId={selectedMediaId} onSelect={setSelectedMediaId} onUpdate={updateFile} onRemove={removeFile} onMove={moveFile} /> : <div className={`flex min-h-20 items-center gap-3 rounded-xl px-4 py-3 transition ${draggingFiles ? 'bg-riff-accent/[0.08]' : 'bg-riff-surface-low/60'}`}><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-riff-surface-2 text-riff-muted"><Icon name="upload" size={16} /></span><span className="text-sm text-riff-muted">{draggingFiles ? 'Drop to attach' : 'Or drag files here'}</span><span className="ml-auto hidden text-xs text-riff-faint sm:inline">Files are visible to people who can see your post.</span></div>}
                 </section>
 
                 {error && <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/[0.07] px-3.5 py-2.5 text-sm text-red-200">{error}</p>}

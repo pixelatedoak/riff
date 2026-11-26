@@ -14,8 +14,13 @@ export function MessageNavItem({ selected }: { selected: boolean }) {
         async function updateCount() {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
-            const { count: unread } = await supabase.from('riff_messages').select('id', { count: 'exact', head: true }).eq('recipient_id', user.id).is('read_at', null)
-            if (alive) setCount(unread ?? 0)
+            const [{ data: unreadMessages }, { data: mutedChats }] = await Promise.all([
+                supabase.from('riff_messages').select('conversation_id').eq('recipient_id', user.id).is('read_at', null),
+                supabase.from('riff_conversation_preferences').select('conversation_id').eq('user_id', user.id).eq('is_muted', true),
+            ])
+            const mutedIds = new Set((mutedChats ?? []).map((chat) => chat.conversation_id))
+            const unread = (unreadMessages ?? []).filter((message) => !mutedIds.has(message.conversation_id)).length
+            if (alive) setCount(unread)
         }
         void updateCount()
         const onUpdate = () => void updateCount()

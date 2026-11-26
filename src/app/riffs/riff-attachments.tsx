@@ -33,26 +33,30 @@ function FileDetails({ file, actions }: { file: RiffAttachment; actions?: React.
 
 function MediaCarousel({ files }: { files: RiffAttachment[] }) {
     const [activeIndex, setActiveIndex] = useState(0)
-    const pointerStart = useRef<number | null>(null)
+    const pointerStart = useRef<{ x: number; y: number } | null>(null)
     const file = files[activeIndex]
     const isVideo = file.mime_type.toLowerCase().startsWith('video/')
     const isGiphy = file.mime_type === 'application/x-giphy'
     const giphyId = file.storage_path.startsWith('external:giphy:') ? file.storage_path.split(':').at(-1) ?? '' : ''
-    const step = (direction: -1 | 1) => setActiveIndex((current) => (current + direction + files.length) % files.length)
+    const step = (direction: -1 | 1) => setActiveIndex((current) => Math.max(0, Math.min(files.length - 1, current + direction)))
 
     return <section aria-label="Post media" className="overflow-hidden rounded-card border border-riff-outline bg-riff-surface-low">
         <div
-            className="relative flex items-center justify-center overflow-hidden bg-transparent"
+            className="relative flex touch-pan-y select-none items-center justify-center overflow-hidden bg-transparent"
             onKeyDown={(event) => {
                 if (files.length < 2) return
                 if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1) }
                 if (event.key === 'ArrowRight') { event.preventDefault(); step(1) }
             }}
-            onPointerDown={(event) => { pointerStart.current = event.clientX }}
+            onPointerDown={(event) => { pointerStart.current = { x: event.clientX, y: event.clientY } }}
             onPointerUp={(event) => {
                 if (pointerStart.current === null || files.length < 2) return
-                const distance = event.clientX - pointerStart.current
-                if (Math.abs(distance) > 45) step(distance < 0 ? 1 : -1)
+                const deltaX = event.clientX - pointerStart.current.x
+                const deltaY = event.clientY - pointerStart.current.y
+                if (Math.abs(deltaX) > 42 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+                    event.preventDefault()
+                    step(deltaX < 0 ? 1 : -1)
+                }
                 pointerStart.current = null
             }}
             onPointerCancel={() => { pointerStart.current = null }}
@@ -67,8 +71,8 @@ function MediaCarousel({ files }: { files: RiffAttachment[] }) {
             </>}
             {files.length > 1 && <>
                 <span className="absolute right-3 top-3 rounded-full bg-black/65 px-2.5 py-1 text-xs font-medium tabular-nums text-white" aria-live="polite">{activeIndex + 1} / {files.length}</span>
-                <button type="button" aria-label="Previous media" onClick={() => step(-1)} className="absolute left-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/55 text-lg text-white shadow-lg backdrop-blur transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-riff-accent">‹</button>
-                <button type="button" aria-label="Next media" onClick={() => step(1)} className="absolute right-3 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/55 text-lg text-white shadow-lg backdrop-blur transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-riff-accent">›</button>
+                {activeIndex > 0 && <button type="button" aria-label="Previous media" onClick={() => step(-1)} className="absolute left-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/55 text-white shadow-lg backdrop-blur transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-riff-accent sm:left-3 sm:size-8"><Icon name="chevron-right" size={15} className="rotate-180" /></button>}
+                {activeIndex < files.length - 1 && <button type="button" aria-label="Next media" onClick={() => step(1)} className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/55 text-white shadow-lg backdrop-blur transition hover:bg-black/75 focus-visible:outline-2 focus-visible:outline-riff-accent sm:right-3 sm:size-8"><Icon name="chevron-right" size={15} /></button>}
             </>}
         </div>
         {isGiphy && <a href="https://giphy.com" target="_blank" rel="noreferrer" className="block border-b border-riff-outline px-3 py-1.5 text-right text-[10px] font-semibold text-riff-muted hover:text-riff-text">Powered by GIPHY</a>}
